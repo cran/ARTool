@@ -1,4 +1,4 @@
-6c2069bf7dd4f99c574e786de695c96f *DESCRIPTION
+27899e8a618acaa46401e524ca64f7e8 *DESCRIPTION
 c96a1c9c1a86c00eb964d1ac85e0549f *NAMESPACE
 3f3d58c302221a170ec0dba47cff8271 *R/anova.art.R
 fa626f602c96134460b03e54252aaffa *R/art.R
@@ -23,6 +23,6 @@ e2a385bf9c9dff3e78ebf47d3796a77d *man/anova.art.Rd
 230431c623832e6b8e62c36b8bd12dcf *man/summary.art.Rd
 b858b9a4de4fc8b4dd8cd3f05d7fa9eb *tests/testthat.R
 234b80ed6f1eebf5ec8cd4915a50ddf7 *tests/testthat/test.art.R
-25546b610400dae0ed62298e9d2213a1 *tests/testthat/test.artlm.R
+5d9413523a2c052329fccfe06d15c59e *tests/testthat/test.artlm.R
 80d56dcad2e83bce709e75aaa23512e0 *tests/testthat/test.parse.art.formula.R
 b219e3bc600a393d0b9a40da336e931a *tests/testthat/test.summary.art.R
