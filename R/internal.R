@@ -6,87 +6,100 @@
 
 ### Parses and validates model formula for art. 
 ### Raises exception if formula does not validate (e.g. not factorial).
-### Returns list with:
-###		fixed.only: formula with only fixed components
-###		fixed.terms: additive formula with only fixed terms and no response 
-###							(e.g. for use with ddply)
-###    	fixed.term.labels:	character vector of term labels
-###     all.terms: formula with response, fixed main effects, grouping factors (not in (1|x) form), 
-###                and fixed interaction terms (in that order)                
+### Given a formula like y ~ a*b*c + (1|d) + Error(g * h) + Error(i),
+### returns list with:
+###		fixed.only: formula with only fixed components (y ~ a+b+c)
+###		fixed.terms: additive formula with only variables from fixed terms and no response 
+###							(for use with ddply) (e.g., ~ a + b + c)
+###    	fixed.term.labels:	character vector of term labels (e.g., c("a", "b", "c", "a:b", "a:c", "b:c", "a:b:c"))
+###     n.grouping.terms: number of grouping terms like (1|d) (e.g. 1)
+###     n.error.terms: number of error terms like Error(g) (e.g. 2)
+###     error.terms: formula with error terms extracted from within Error() (e.g. ~ g * h + i) 
+#' @importFrom stats terms
+#' @importFrom plyr laply
 parse.art.formula = function(formula) {
     #extract terms from the formula
     f.terms = terms(formula)
-    f.variables = attr(f.terms, "variables")
-    f.term.labels = attr(f.terms, "term.labels")
-    f.factors = attr(f.terms, "factors")
-    f.order = attr(f.terms, "order")
-    f.response = attr(f.terms, "response")
     
-    #ensure we have 1 independent variable
+    #ensure we have an independent variable and an intercept
     if (attr(f.terms, "response") != 1) {
-        stop("Model must have exactly one independent variable (got ", f.response, ")")
+        stop("Model must have exactly one dependent variable (got ", attr(f.terms, "response"), ")")
     }
-    
-    #ensure we have an intercept
     if (attr(f.terms, "intercept") == 0) {
         stop("Model must have an intercept (got ", attr(f.terms, "intercept"), ")")
     }
     
-    #determine which terms on the right hand side are grouping terms
-    is.grouping.variable = laply(as.list(f.variables), function(term) as.list(term)[[1]] == quote(`|`))
+    #unique variables in the rhs of the formula as list of quoted variables 
+    #e.g. y ~ a*b*c + (1|d) + Error(g) -> list(quote(a), quote(b), quote(c), quote((1|d)), quote(Error(g))))
+    variables = as.list(attr(f.terms, "variables"))[c(-1,-2)] 
+    #char vector of names of rhs terms and their interactions
+    #e.g. y ~ a*b*c + (1|d) + Error(g) -> c("a","b","c","1 | d","Error(g)","a:b","b:c","a:b:c"))  
+    term.labels = attr(f.terms, "term.labels")
+    #vector of length(f.term.labels); value is the order of the interaction of the corresponding entry in term.labels
+    #e.g. y ~ a*b*c + (1|d) + Error(g) -> c(1,1,1,1,1,2,2,3)  
+    term.order = attr(f.terms, "order")
+    
+    #determine which variables on the rhs are grouping variables, error variables, or fixed variables
+    is.grouping.variable = laply(variables, function(term) as.list(term)[[1]] == quote(`|`))
+    is.error.variable = laply(variables, function(term) is.call(term) & as.list(term)[[1]] == quote(`Error`))
+    #all other variables that aren't grouping or error variables must be fixed variables
+    is.fixed.variable = !(is.grouping.variable | is.error.variable)
+
+    #ensure we have at least one fixed effect and are using either grouping terms or error terms but not both
+    if (sum(is.fixed.variable) == 0) {
+        stop("Model must have at least one fixed effect (0 given)")
+    }
+    if (any(is.grouping.variable) & any(is.error.variable)) {
+        stop("Model cannot contain both grouping terms, like (1|d), and error terms, like Error(d). Use one or the other.")
+    }
+    
+    #get table with rows == rhs variables and cols == term labels, each cell == 1 if variable in term
+    variables.by.terms = attr(f.terms, "factors")[-1,,drop=FALSE] #prevent reducing to vector if only one cell
     
     #make a version of the formula terms with only fixed effects
-    fixed.f.variables = f.variables[!is.grouping.variable]
-    term_index.2 = length(f.term.labels) - length(is.grouping.variable) + 2	#TODO: go back and determine what this is 
-    if (term_index.2 < 0) {
-        #only happens when not factorial? TODO: why?
+    n.rhs.variables = length(variables)
+    n.rhs.terms = length(term.labels)
+    n.interaction.terms = n.rhs.terms - n.rhs.variables
+    if (n.interaction.terms < 0) {
+        #only happens when not factorial
         stop("Model must include all combinations of interactions of fixed effects.")
     }
-    term_index = c(!is.grouping.variable[-c(1,2)], rep(TRUE, term_index.2))
-    if (length(f.factors) == 0) {
-        #no effects => no fixed effects
-        stop("Model must have at least one fixed effect (0 given)")
-    }
-    fixed.f.factors = f.factors[!is.grouping.variable[-1],term_index]
-    if (length(fixed.f.factors) == 0) {
-        #all effects are random => no fixed effects
-        stop("Model must have at least one fixed effect (0 given)")
-    }
-    fixed.f.term.labels = f.term.labels[term_index]
-    fixed.f.order = f.order[term_index]
+    is.fixed.term = c(is.fixed.variable, rep(TRUE, n.interaction.terms))
+    fixed.variables.by.terms = variables.by.terms[is.fixed.variable, is.fixed.term, drop=FALSE]
+    fixed.term.labels = term.labels[is.fixed.term]
+    fixed.term.order = term.order[is.fixed.term]
     
     #ensure design of fixed effects portion of model has all interactions
     #first, pull out the response and the main (i.e. order-1) fixed effect terms 
-    response.label = rownames(f.factors)[1]
-    main.effects.labels = fixed.f.term.labels[fixed.f.order == 1]
+    response = formula[[2]]
     #build a factorial model of all fixed effects
-    factorial.formula = eval(parse(text=paste(response.label,"~",do.call(paste, c(main.effects.labels, list(sep="*"))))))
+    #e.g. y ~ a*b*c + (1|d) + Error(g) -> y ~ a*b*c
+    factorial.formula = eval(bquote(.(response) ~ .(Reduce(function(x,y) bquote(.(x) * .(y)), variables[is.fixed.variable]))))
+    environment(factorial.formula) = environment(formula)
     #verify the factorial model is the same as the fixed effects in the supplied model
-    factorial.factors = attr(terms(factorial.formula), "factors")
-    if (!all(dim(factorial.factors) == dim(fixed.f.factors)) || !all(factorial.factors == fixed.f.factors)) {
+    factorial.factors = attr(terms(factorial.formula), "factors")[-1,,drop=FALSE]
+    if (!all(dim(factorial.factors) == dim(fixed.variables.by.terms)) || !all(factorial.factors == fixed.variables.by.terms)) {
         stop("Model must include all combinations of interactions of fixed effects.")
     }
-    
-    #	#ensure grouping terms are intercept-only (TODO: is this necessary?)
-    grouping.f.variables = f.variables[is.grouping.variable]
-    #	if (!all(laply(as.list(grouping.f.variables), function(term) term[[2]] == 1))) {
-    #		stop("All grouping variables must be intercept-only (e.g. (1|some.factor))")
-    #	}
-    
-    #generate all-terms formula
-    all.terms = factorial.formula
-    #add grouping variables back in to formula as standlone terms (not in (1|x) form)
-    for (rv in as.list(grouping.f.variables)) {
-        all.terms = eval(parse(text=paste("update(all.terms, ~ . +", as.character(rv[[3]]), ")")))
-    }
+
+    #build a formula with only fixed variables on the right-hand-side (added to each other)
+    #e.g. y ~ a*b*c + (1|d) + Error(g) ->  ~ a + b + c
+    fixed.terms = eval(bquote(~ .(Reduce(function(x,y) bquote(.(x) + .(y)), variables[is.fixed.variable]))))
+    environment(fixed.terms) = environment(formula)
+
+    #build a formula with all Error terms extracted from Error() on the right-hand side (added to each other)
+    #e.g. y ~ a*b*c + (1|d) + Error(g * h) + Error(i) ->  ~ g * h + i
+    error.terms = eval(bquote(~ .(Reduce(function(x,y) bquote(.(x) + .(y)), Map(function (v) v[[2]], variables[is.error.variable])))))
+    environment(error.terms) = environment(formula)
     
     #return validated formulas
     list(
-        fixed.only=factorial.formula,
-        fixed.terms=eval(parse(text=paste("~",do.call(paste, c(main.effects.labels, list(sep="+")))))),
-        fixed.term.labels=fixed.f.term.labels,
-        all.terms=all.terms,
-        n.grouping.variables=sum(is.grouping.variable)
+        fixed.only = factorial.formula,
+        fixed.terms = fixed.terms,
+        fixed.term.labels = fixed.term.labels,
+        n.grouping.terms = sum(is.grouping.variable),
+        n.error.terms = sum(is.error.variable),
+        error.terms = error.terms
     )
 }
 
@@ -103,6 +116,7 @@ parse.art.formula = function(formula) {
 ### parameters to art.estimated effects are:
 ### formula.terms = terms(f)
 ### data = model.frame(f, df)
+#' @importFrom plyr ddply
 art.estimated.effects = function(formula.terms, data) {
     #N.B. in this method "interaction" refers to 
     #all 0 - n order interactions (i.e., grand mean, 
@@ -127,7 +141,12 @@ art.estimated.effects = function(formula.terms, data) {
     for (j in 2:ncol(interaction.matrix)) {
         term.index = interaction.matrix[,j]
         #calculate cell means
-        cell.mean.df = ddply(data, term.names[term.index], function (df) {
+        #must dervie term.formula as below (instead of just passing term.names[term.index] to ddply)
+        #because otherwise expressions like "factor(a)" would be converted to ~ factor(a) (instead of ~ `factor(a)`, which
+        #is what we want here because the expression has already been evaluated previously)
+        #A nicer way to do all this would be good to come up with eventually  
+        term.formula = eval(bquote(~ .(Reduce(function(x,y) bquote(.(x) + .(y)), Map(as.name, term.names[term.index])))))
+        cell.mean.df = ddply(data, term.formula, function (df) {
             df$.cell.mean = mean(df[,1])	#mean of response for this interaction
             df
         })
