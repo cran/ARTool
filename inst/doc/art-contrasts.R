@@ -8,11 +8,10 @@ pander::panderOptions("table.split.table", Inf)     #don't split wide tables in 
 pander::panderOptions("table.style", "rmarkdown")   #table style that's supported by github
 
 ## ----message=FALSE-------------------------------------------------------
+library(dplyr)      #data_frame, %>%, filter, summarise, group_by
+library(lsmeans)    #lsmeans, contrast
+library(tidyr)      #spread
 library(ARTool)     #art, artlm
-library(dplyr)      #data_frame, %>%, filter, etc
-library(lsmeans)    #lsmeans
-library(phia)       #testInteractions
-library(tidyr)      #spread, gather
 library(ggplot2)    #ggplot, stat_..., geom_..., etc
 
 ## ------------------------------------------------------------------------
@@ -55,19 +54,19 @@ m.art = art(Y ~ X1*X2, data=df)
 anova(m.art)
 
 ## ---- message=FALSE------------------------------------------------------
-lsmeans(m.linear, pairwise ~ X1)$contrasts
-lsmeans(m.linear, pairwise ~ X2)$contrasts
+contrast(lsmeans(m.linear, ~ X1), method="pairwise")
+contrast(lsmeans(m.linear, ~ X2), method="pairwise")
 
 ## ---- message=FALSE------------------------------------------------------
-lsmeans(artlm(m.art, "X1"), pairwise ~ X1)$contrasts
-lsmeans(artlm(m.art, "X2"), pairwise ~ X2)$contrasts
+contrast(lsmeans(artlm(m.art, "X1"), ~ X1), method="pairwise")
+contrast(lsmeans(artlm(m.art, "X2"), ~ X2), method="pairwise")
 
 ## ------------------------------------------------------------------------
-lsmeans(m.linear, pairwise ~ X1:X2)$contrasts
+contrast(lsmeans(m.linear, ~ X1:X2), method="pairwise")
 
 ## ------------------------------------------------------------------------
 #DO NOT DO THIS!
-lsmeans(artlm(m.art, "X1:X2"), pairwise ~ X1:X2)$contrasts
+contrast(lsmeans(artlm(m.art, "X1:X2"), ~ X1:X2), method="pairwise")
 
 ## ----interaction_plot_AC_AD, fig.cap="", fig.width=3---------------------
 df %>%
@@ -84,7 +83,7 @@ df %>%
 #DO NOT DO THIS WITHOUT READING THE NOTE BELOW
 df$X = with(df, X1:X2)
 m.art.12 = art(Y ~ X, data=df)
-lsmeans(artlm(m.art.12, "X"), pairwise ~ X)$contrasts
+contrast(lsmeans(artlm(m.art.12, "X"), ~ X), method="pairwise")
 
 ## ---- interaction_plot_C_D, fig.cap=""-----------------------------------
 plot_interaction_for_X2_levels = function(...) {
@@ -111,9 +110,7 @@ plot_interaction_for_X2_levels = function(...) {
 plot_interaction_for_X2_levels("C", "D")
 
 ## ------------------------------------------------------------------------
-#unfortunately, the meaning of "pairwise" here isn't the same as how lsmeans
-#uses it when multiple factors are involved --- here we get differences of differences.
-testInteractions(m.linear, pairwise=c("X1", "X2"))
+contrast(lsmeans(m.linear, ~ X1:X2), method="pairwise", interaction=TRUE)
 
 ## ----interaction_plot_C_E, fig.cap=""------------------------------------
 plot_interaction_for_X2_levels("C", "E")
@@ -122,5 +119,5 @@ plot_interaction_for_X2_levels("C", "E")
 plot_interaction_for_X2_levels("D", "E")
 
 ## ------------------------------------------------------------------------
-testInteractions(artlm(m.art, "X1:X2"), pairwise=c("X1", "X2"))
+contrast(lsmeans(artlm(m.art, "X1:X2"), ~ X1:X2), method="pairwise", interaction=TRUE)
 

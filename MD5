@@ -1,6 +1,6 @@
-61caf74a8a879ba8ec3eb7b346516137 *DESCRIPTION
+2af12540f8aedff60a4de5bfb9ed5aad *DESCRIPTION
 8ddabe875906cc83189a12d3cb87c542 *NAMESPACE
-6219f04ec030e18961ea3559211cac04 *NEWS
+6cbdaed045cebcc6b805e8452c86f97e *NEWS
 f9ff253ca3e33ffe447ae0d856eee586 *R/anova.art.R
 ad13b65c194f9ecef18caba7c7c08d47 *R/art.R
 de5684879df0a2469e7eb24152d9f62e *R/artlm.R
@@ -8,7 +8,8 @@ de5684879df0a2469e7eb24152d9f62e *R/artlm.R
 27c8fc641284bc6e3f6c23881fd076b3 *R/flat.anova.R
 98527bc171379e9f2b54bd43ce8ee693 *R/global.variables.R
 31130510c6f5db9ddb01fcabf4f55e4c *R/internal.R
-abcd4b2d40cb55cfe5fe24e88d1ccd90 *build/vignette.rds
+963e8589b77f3c40bcf4ef4a79196ee0 *R/release.questions.R
+0373dcf9416ceffc30d2da93be834cfd *build/vignette.rds
 3f37d3eae949bbca24569e7e536eb877 *data/Higgins1990Table1.RData
 eba5688fb1c3919bc8d32cd9e50ccaf9 *data/Higgins1990Table1.art.RData
 f0acdc1ab1932eb3d2cf32a075705483 *data/Higgins1990Table5.RData
@@ -17,9 +18,12 @@ b98c75d95773e102f1ef27f1121f6af7 *data/HigginsABC.RData
 c20f8674f64479ae5b7f0d24240c1b74 *data/HigginsABC.art.RData
 c7d82deed7b3f4f7ceb63749910779c2 *data/InteractionTestData.RData
 4c24be057159cc201097b66e84492c26 *inst/CITATION
-a6880b0d8e4ff4a83d68f86bcaa19e64 *inst/doc/art-contrasts.R
-cdbbab70b71f191a7bb2be799a63911b *inst/doc/art-contrasts.Rmd
-fe3727c89bb8ba6b067634f82bf62f00 *inst/doc/art-contrasts.html
+ebbc77e263c2794b5a91c605c0097850 *inst/doc/art-contrasts.R
+bf254a071a80e2b036da72b65e84baa8 *inst/doc/art-contrasts.Rmd
+ce333cc4a6ca32a122851bfac1d413fc *inst/doc/art-contrasts.html
+d54cdf06e158f878e6da3dccecda0a8c *inst/doc/art-effect-size.R
+537b994262b311455204dee13d89712b *inst/doc/art-effect-size.Rmd
+bb3aaeed5a000672c43cbab900f08d5e *inst/doc/art-effect-size.html
 2b65158fde6dae70b91352c5d31ada3a *man/Higgins1990Table1.Rd
 7f6f41e348e9ee7445f3f52e4037fb3c *man/Higgins1990Table1.art.Rd
 40319aa665abd2da4c382b8d34714f91 *man/Higgins1990Table5.Rd
@@ -37,4 +41,5 @@ b858b9a4de4fc8b4dd8cd3f05d7fa9eb *tests/testthat.R
 6e524f4bed98bf1b60014821ff99369c *tests/testthat/test.artlm.R
 3c747952577e17da27dc2b9ff9837a4d *tests/testthat/test.parse.art.formula.R
 b219e3bc600a393d0b9a40da336e931a *tests/testthat/test.summary.art.R
-cdbbab70b71f191a7bb2be799a63911b *vignettes/art-contrasts.Rmd
+bf254a071a80e2b036da72b65e84baa8 *vignettes/art-contrasts.Rmd
+537b994262b311455204dee13d89712b *vignettes/art-effect-size.Rmd
