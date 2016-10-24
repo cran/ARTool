@@ -10,6 +10,7 @@ pander::panderOptions("table.style", "rmarkdown")   #table style that's supporte
 ## ----message=FALSE-------------------------------------------------------
 library(dplyr)      #data_frame, %>%, filter, summarise, group_by
 library(lsmeans)    #lsmeans, contrast
+library(phia)       #testInteractions
 library(tidyr)      #spread
 library(ARTool)     #art, artlm
 library(ggplot2)    #ggplot, stat_..., geom_..., etc
@@ -120,4 +121,7 @@ plot_interaction_for_X2_levels("D", "E")
 
 ## ------------------------------------------------------------------------
 contrast(lsmeans(artlm(m.art, "X1:X2"), ~ X1:X2), method="pairwise", interaction=TRUE)
+
+## ------------------------------------------------------------------------
+testInteractions(artlm(m.art, "X1:X2"), pairwise=c("X1","X2"))
 
