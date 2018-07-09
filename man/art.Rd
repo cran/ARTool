@@ -13,9 +13,9 @@ art(formula, data,
 terms (but not both). Should be a formula with a single response variable
 (left-hand side) and one or more terms with all interactions on the
 right-hand side, e.g. \code{y ~ x} or \code{y ~ a*b*c} or \code{y ~ a + b +
-b:c}. If you want to run a mixed effects Anova on the transformed data using
+b:c}. If you want to run a mixed effects ANOVA on the transformed data using
 \code{\link{lmer}}, you can include grouping terms, as in \code{y ~ a*b*c +
-(1|d)}.  If you want to run a repeated measures Anova using
+(1|d)}.  If you want to run a repeated measures ANOVA using
 \code{\link{aov}}, you can include error terms, as in \code{y ~ a*b*c +
 Error(d)}. See 'Details'.}
 
@@ -95,10 +95,10 @@ m <- art(DryMatter ~ Moisture*Fertilizer + (1|Tray), data=Higgins1990Table5)
 
 ## see summary data to ensure aligned rank transform is appropriate for this data
 summary(m)
-## looks good (aligned effects sum to 0 and F values on aligned responses 
+## looks good (aligned effects sum to 0 and F values on aligned responses
 ## not of interest are all ~0)
 
-## we can always look at the anova of aligned data if we want more detail 
+## we can always look at the anova of aligned data if we want more detail
 ## to assess the appropriateness of ART.  F values in this anova should all
 ## be approx 0.
 anova(m, response="aligned")
@@ -108,13 +108,13 @@ anova(m)
 
 ## if we want post-hoc tests, artlm(m, term) returns the linear model for the
 ## given term
-## which we can then examine using our preferred method (lsmeans, glht, etc)
+## which we can then examine using our preferred method (emmeans, glht, etc)
 ## e.g., pairwise contrasts on Moisture:
-library(lsmeans)
-lsmeans(artlm(m, "Moisture"), pairwise ~ Moisture)
+library(emmeans)
+emmeans(artlm(m, "Moisture"), pairwise ~ Moisture)
 
 ## pairwise contrasts on Fertilizer:
-lsmeans(artlm(m, "Fertilizer"), pairwise ~ Fertilizer)
+emmeans(artlm(m, "Fertilizer"), pairwise ~ Fertilizer)
 
 ## N.B. The above types of contrasts ARE NOT valid for interactions.
 ## Instead, use testInteractions from the phia package. For example:
@@ -125,9 +125,6 @@ vignette("art-contrasts")
 
 }
 
-}
-\author{
-Matthew Kay
 }
 \references{
 Wobbrock, J. O., Findlater, L., Gergle, D., and Higgins, J. J.
@@ -143,5 +140,7 @@ New York: ACM Press, pp. 143-146.
 \code{\link{summary.art}}, \code{\link{anova.art}},
 \code{\link{artlm}}.
 }
+\author{
+Matthew Kay
+}
 \keyword{nonparametric}
-

@@ -1,7 +1,7 @@
 Package: ARTool
 Title: Aligned Rank Transform
-Version: 0.10.4
-Date: 2016-10-23
+Version: 0.10.5
+Date: 2018-07-08
 Authors@R: c(person("Matthew", "Kay", role = c("aut", "cre"),
     email = "mjskay@umich.edu"),
     person("Jacob O.", "Wobbrock", role = "aut",
@@ -14,17 +14,17 @@ Description: The Aligned Rank Transform for nonparametric
     using only ANOVA procedures", CHI 2011 <DOI:10.1145/1978942.1978963>.
 Depends: R (>= 3.2)
 Imports: lme4, car (>= 2.0-24), plyr, magrittr, dplyr
-Suggests: testthat (>= 0.10.0), lsmeans (>= 2.22), knitr, rmarkdown,
-        ggplot2, tidyr, pander, Cairo, lmerTest, cluster, phia,
-        survival, DescTools
+Suggests: testthat (>= 0.10.0), emmeans, knitr, rmarkdown, ggplot2,
+        tidyr, pander, lmerTest, cluster, phia, survival, psych,
+        stringi, DescTools
 License: GPL (>= 2)
 BugReports: https://github.com/mjskay/ARTool/issues/new
 URL: https://github.com/mjskay/ARTool
 VignetteBuilder: knitr
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 NeedsCompilation: no
-Packaged: 2016-10-24 05:24:13 UTC; Matthew
+Packaged: 2018-07-09 16:43:33 UTC; matth
 Author: Matthew Kay [aut, cre],
   Jacob O. Wobbrock [aut]
 Repository: CRAN
-Date/Publication: 2016-10-24 11:28:38
+Date/Publication: 2018-07-09 17:20:03 UTC

@@ -1,15 +1,14 @@
 ## ----setup, include=FALSE------------------------------------------------
 knitr::opts_chunk$set(  #default code chunk options
-    dev = "CairoPNG",      #nicer PNG figures
     fig.width = 6,
     fig.height = 4
-)           
+)
 pander::panderOptions("table.split.table", Inf)     #don't split wide tables in output
 pander::panderOptions("table.style", "rmarkdown")   #table style that's supported by github
 
 ## ----message=FALSE-------------------------------------------------------
 library(dplyr)      #data_frame, %>%, filter, summarise, group_by
-library(lsmeans)    #lsmeans, contrast
+library(emmeans)    #emmeans, contrast
 library(phia)       #testInteractions
 library(tidyr)      #spread
 library(ARTool)     #art, artlm
@@ -55,19 +54,19 @@ m.art = art(Y ~ X1*X2, data=df)
 anova(m.art)
 
 ## ---- message=FALSE------------------------------------------------------
-contrast(lsmeans(m.linear, ~ X1), method="pairwise")
-contrast(lsmeans(m.linear, ~ X2), method="pairwise")
+contrast(emmeans(m.linear, ~ X1), method="pairwise")
+contrast(emmeans(m.linear, ~ X2), method="pairwise")
 
 ## ---- message=FALSE------------------------------------------------------
-contrast(lsmeans(artlm(m.art, "X1"), ~ X1), method="pairwise")
-contrast(lsmeans(artlm(m.art, "X2"), ~ X2), method="pairwise")
+contrast(emmeans(artlm(m.art, "X1"), ~ X1), method="pairwise")
+contrast(emmeans(artlm(m.art, "X2"), ~ X2), method="pairwise")
 
 ## ------------------------------------------------------------------------
-contrast(lsmeans(m.linear, ~ X1:X2), method="pairwise")
+contrast(emmeans(m.linear, ~ X1:X2), method="pairwise")
 
 ## ------------------------------------------------------------------------
 #DO NOT DO THIS!
-contrast(lsmeans(artlm(m.art, "X1:X2"), ~ X1:X2), method="pairwise")
+contrast(emmeans(artlm(m.art, "X1:X2"), ~ X1:X2), method="pairwise")
 
 ## ----interaction_plot_AC_AD, fig.cap="", fig.width=3---------------------
 df %>%
@@ -84,7 +83,7 @@ df %>%
 #DO NOT DO THIS WITHOUT READING THE NOTE BELOW
 df$X = with(df, X1:X2)
 m.art.12 = art(Y ~ X, data=df)
-contrast(lsmeans(artlm(m.art.12, "X"), ~ X), method="pairwise")
+contrast(emmeans(artlm(m.art.12, "X"), ~ X), method="pairwise")
 
 ## ---- interaction_plot_C_D, fig.cap=""-----------------------------------
 plot_interaction_for_X2_levels = function(...) {
@@ -99,7 +98,7 @@ plot_interaction_for_X2_levels = function(...) {
         geom_point(pch="-", size=4) +
         stat_summary(fun.y=mean, geom="point", size=4) + 
         stat_summary(fun.y=mean, geom="line", size=1, mapping=aes(group=X2), linetype="dashed") +
-        geom_errorbar(aes(x=2.2, ymin=A, ymax=B, y=0), 
+        geom_errorbar(aes(x=2.2, ymin=A, ymax=B, y=NULL),  
             data=X1_in_X2, width=.19, size=0.8, color="black") +
         geom_text(aes(x=2.35, y=(A + B)/2, label=paste("A - B |", X2)), 
             data=X1_in_X2, hjust=0, size=5, color="black") +
@@ -111,7 +110,7 @@ plot_interaction_for_X2_levels = function(...) {
 plot_interaction_for_X2_levels("C", "D")
 
 ## ------------------------------------------------------------------------
-contrast(lsmeans(m.linear, ~ X1:X2), method="pairwise", interaction=TRUE)
+contrast(emmeans(m.linear, ~ X1:X2), method="pairwise", interaction=TRUE)
 
 ## ----interaction_plot_C_E, fig.cap=""------------------------------------
 plot_interaction_for_X2_levels("C", "E")
@@ -120,7 +119,7 @@ plot_interaction_for_X2_levels("C", "E")
 plot_interaction_for_X2_levels("D", "E")
 
 ## ------------------------------------------------------------------------
-contrast(lsmeans(artlm(m.art, "X1:X2"), ~ X1:X2), method="pairwise", interaction=TRUE)
+contrast(emmeans(artlm(m.art, "X1:X2"), ~ X1:X2), method="pairwise", interaction=TRUE)
 
 ## ------------------------------------------------------------------------
 testInteractions(artlm(m.art, "X1:X2"), pairwise=c("X1","X2"))
