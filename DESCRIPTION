@@ -1,7 +1,7 @@
 Package: ARTool
 Title: Aligned Rank Transform
-Version: 0.10.6
-Date: 2019-02-03
+Version: 0.10.7
+Date: 2020-03-19
 Authors@R: c(person("Matthew", "Kay", role = c("aut", "cre"),
     email = "mjskay@umich.edu"),
     person("Jacob O.", "Wobbrock", role = "aut",
@@ -18,14 +18,15 @@ Suggests: testthat (>= 0.10.0), emmeans, knitr, rmarkdown, ggplot2,
         tidyr, pander, lmerTest, cluster, phia, survival, psych,
         stringi, DescTools
 License: GPL (>= 2)
+Language: en-US
 BugReports: https://github.com/mjskay/ARTool/issues/new
 URL: https://github.com/mjskay/ARTool
 VignetteBuilder: knitr
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2019-02-03 23:03:15 UTC; matth
+Packaged: 2020-03-20 02:56:08 UTC; matth
 Author: Matthew Kay [aut, cre],
   Jacob O. Wobbrock [aut]
 Repository: CRAN
-Date/Publication: 2019-02-03 23:23:19 UTC
+Date/Publication: 2020-03-20 05:10:02 UTC

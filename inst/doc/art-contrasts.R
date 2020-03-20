@@ -1,4 +1,4 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(  #default code chunk options
     fig.width = 6,
     fig.height = 4
@@ -6,7 +6,7 @@ knitr::opts_chunk$set(  #default code chunk options
 pander::panderOptions("table.split.table", Inf)     #don't split wide tables in output
 pander::panderOptions("table.style", "rmarkdown")   #table style that's supported by github
 
-## ----message=FALSE-------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 library(dplyr)      #data_frame, %>%, filter, summarise, group_by
 library(emmeans)    #emmeans, contrast
 library(phia)       #testInteractions
@@ -14,7 +14,7 @@ library(tidyr)      #spread
 library(ARTool)     #art, artlm
 library(ggplot2)    #ggplot, stat_..., geom_..., etc
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 n_per_group = 150
 df = data_frame(
     X1 = factor(c(rep("A", n_per_group), rep("B", n_per_group))),
@@ -27,11 +27,11 @@ df = data_frame(
         + 2 * (X2 == "E")) 
 )
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 data(InteractionTestData)
 df = InteractionTestData    #save some typing
 
-## ----interaction_plot, fig.cap=""----------------------------------------
+## ----interaction_plot, fig.cap=""---------------------------------------------
 palette = c("#1b9e77", "#d95f02", "#7570b3")
 names(palette) = c("C", "D", "E")
 ggplot(df, aes(x=X1, y=Y, color=X2)) + 
@@ -45,30 +45,30 @@ ggplot(df, aes(x=X1, y=Y, color=X2)) +
     coord_cartesian(ylim=c(-6,10)) + 
     facet_grid(. ~ X2)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 m.linear = lm(Y ~ X1*X2, data=df)
 anova(m.linear)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 m.art = art(Y ~ X1*X2, data=df)
 anova(m.art)
 
-## ---- message=FALSE------------------------------------------------------
+## ---- message=FALSE-----------------------------------------------------------
 contrast(emmeans(m.linear, ~ X1), method="pairwise")
 contrast(emmeans(m.linear, ~ X2), method="pairwise")
 
-## ---- message=FALSE------------------------------------------------------
+## ---- message=FALSE-----------------------------------------------------------
 contrast(emmeans(artlm(m.art, "X1"), ~ X1), method="pairwise")
 contrast(emmeans(artlm(m.art, "X2"), ~ X2), method="pairwise")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 contrast(emmeans(m.linear, ~ X1:X2), method="pairwise")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #DO NOT DO THIS!
 contrast(emmeans(artlm(m.art, "X1:X2"), ~ X1:X2), method="pairwise")
 
-## ----interaction_plot_AC_AD, fig.cap="", fig.width=3---------------------
+## ----interaction_plot_AC_AD, fig.cap="", fig.width=3--------------------------
 df %>%
     filter(X1 == "A", X2 %in% c("C", "D")) %>%
     ggplot(aes(x=X1:X2, y=Y, color=X2)) + 
@@ -79,13 +79,13 @@ df %>%
     scale_color_manual(guide=FALSE, values=palette) +
     coord_cartesian(ylim=c(-6,10)) 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #DO NOT DO THIS WITHOUT READING THE NOTE BELOW
 df$X = with(df, X1:X2)
 m.art.12 = art(Y ~ X, data=df)
 contrast(emmeans(artlm(m.art.12, "X"), ~ X), method="pairwise")
 
-## ---- interaction_plot_C_D, fig.cap=""-----------------------------------
+## ---- interaction_plot_C_D, fig.cap=""----------------------------------------
 plot_interaction_for_X2_levels = function(...) {
     x2_levels = c(...)
     df. = filter(df, X2 %in% x2_levels)
@@ -109,18 +109,18 @@ plot_interaction_for_X2_levels = function(...) {
 }
 plot_interaction_for_X2_levels("C", "D")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 contrast(emmeans(m.linear, ~ X1:X2), method="pairwise", interaction=TRUE)
 
-## ----interaction_plot_C_E, fig.cap=""------------------------------------
+## ----interaction_plot_C_E, fig.cap=""-----------------------------------------
 plot_interaction_for_X2_levels("C", "E")
 
-## ---- interaction_plot_D_E, fig.cap=""-----------------------------------
+## ---- interaction_plot_D_E, fig.cap=""----------------------------------------
 plot_interaction_for_X2_levels("D", "E")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 contrast(emmeans(artlm(m.art, "X1:X2"), ~ X1:X2), method="pairwise", interaction=TRUE)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 testInteractions(artlm(m.art, "X1:X2"), pairwise=c("X1","X2"))
 
