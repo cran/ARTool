@@ -12,17 +12,81 @@
 
 <meta name="author" content="Matthew Kay" />
 
-<meta name="date" content="2020-03-19" />
+<meta name="date" content="2020-10-31" />
 
 <title>Effect Sizes with ART</title>
 
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -32,14 +96,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -48,9 +114,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -301,7 +367,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Effect Sizes with ART</h1>
 <h4 class="author">Matthew Kay</h4>
-<h4 class="date">2020-03-19</h4>
+<h4 class="date">2020-10-31</h4>
 
 
 
@@ -320,31 +386,31 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="libraries-needed-for-this" class="section level2">
 <h2>Libraries needed for this</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(dplyr)      <span class="co">#%&gt;%</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(emmeans)    <span class="co">#emmeans</span></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw">library</span>(DescTools)  <span class="co">#EtaSq</span></a></code></pre></div>
-<pre><code>## Warning: package &#39;DescTools&#39; was built under R version 3.6.3</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">library</span>(car)        <span class="co">#sigmaHat</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="kw">library</span>(ARTool)     <span class="co">#art, artlm</span></a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="kw">library</span>(ggplot2)    <span class="co">#ggplot, stat_..., geom_..., etc</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(dplyr)      <span class="co">#%&gt;%</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(emmeans)    <span class="co">#emmeans</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">library</span>(DescTools)  <span class="co">#EtaSq</span></span></code></pre></div>
+<pre><code>## Warning: package &#39;DescTools&#39; was built under R version 4.0.3</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">library</span>(car)        <span class="co">#sigmaHat</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">library</span>(ARTool)     <span class="co">#art, artlm</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="kw">library</span>(ggplot2)    <span class="co">#ggplot, stat_..., geom_..., etc</span></span></code></pre></div>
 </div>
 <div id="test-dataset" class="section level2">
 <h2>Test dataset</h2>
 <p>Let’s load the test dataset from <code><a href="art-contrasts.html">vignette(“art-contrasts”)</a></code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">data</span>(InteractionTestData)</a>
-<a class="sourceLine" id="cb4-2" title="2">df =<span class="st"> </span>InteractionTestData    <span class="co">#save some typing</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">data</span>(InteractionTestData)</span>
+<span id="cb4-2"><a href="#cb4-2"></a>df =<span class="st"> </span>InteractionTestData    <span class="co">#save some typing</span></span></code></pre></div>
 <p>Let’s fit a linear model:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="co">#we&#39;ll be doing type 3 tests, so we want sum-to-zero contrasts</span></a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="kw">options</span>(<span class="dt">contrasts =</span> <span class="kw">c</span>(<span class="st">&quot;contr.sum&quot;</span>, <span class="st">&quot;contr.poly&quot;</span>))</a>
-<a class="sourceLine" id="cb5-3" title="3">m.linear =<span class="st"> </span><span class="kw">lm</span>(Y <span class="op">~</span><span class="st"> </span>X1<span class="op">*</span>X2, <span class="dt">data=</span>df)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">#we&#39;ll be doing type 3 tests, so we want sum-to-zero contrasts</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="kw">options</span>(<span class="dt">contrasts =</span> <span class="kw">c</span>(<span class="st">&quot;contr.sum&quot;</span>, <span class="st">&quot;contr.poly&quot;</span>))</span>
+<span id="cb5-3"><a href="#cb5-3"></a>m.linear =<span class="st"> </span><span class="kw">lm</span>(Y <span class="op">~</span><span class="st"> </span>X1<span class="op">*</span>X2, <span class="dt">data=</span>df)</span></code></pre></div>
 <p>Now with ART:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">m.art =<span class="st"> </span><span class="kw">art</span>(Y <span class="op">~</span><span class="st"> </span>X1<span class="op">*</span>X2, <span class="dt">data=</span>df)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>m.art =<span class="st"> </span><span class="kw">art</span>(Y <span class="op">~</span><span class="st"> </span>X1<span class="op">*</span>X2, <span class="dt">data=</span>df)</span></code></pre></div>
 </div>
 <div id="partial-eta-squared" class="section level2">
 <h2>Partial <em>eta</em>-squared</h2>
 <p>Note that for Fixed-effects-only models and repeated measures models (those with <code>Error()</code> terms) ARTool also collects the sums of squares, but does not print them by default. We can pass <code>verbose = TRUE</code> to <code>print()</code> to print them:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">m.art.anova =<span class="st"> </span><span class="kw">anova</span>(m.art)</a>
-<a class="sourceLine" id="cb7-2" title="2"><span class="kw">print</span>(m.art.anova, <span class="dt">verbose=</span><span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>m.art.anova =<span class="st"> </span><span class="kw">anova</span>(m.art)</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="kw">print</span>(m.art.anova, <span class="dt">verbose=</span><span class="ot">TRUE</span>)</span></code></pre></div>
 <pre><code>## Analysis of Variance of Aligned Rank Transformed Data
 ## 
 ## Table Type: Anova Table (Type III tests) 
@@ -358,8 +424,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## ---
 ## Signif. codes:   0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>We can use the sums of squares to calculate partial <em>eta</em>-squared:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">m.art.anova<span class="op">$</span>eta.sq.part =<span class="st"> </span><span class="kw">with</span>(m.art.anova, <span class="st">`</span><span class="dt">Sum Sq</span><span class="st">`</span><span class="op">/</span>(<span class="st">`</span><span class="dt">Sum Sq</span><span class="st">`</span> <span class="op">+</span><span class="st"> `</span><span class="dt">Sum Sq.res</span><span class="st">`</span>))</a>
-<a class="sourceLine" id="cb9-2" title="2">m.art.anova</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>m.art.anova<span class="op">$</span>eta.sq.part =<span class="st"> </span><span class="kw">with</span>(m.art.anova, <span class="st">`</span><span class="dt">Sum Sq</span><span class="st">`</span><span class="op">/</span>(<span class="st">`</span><span class="dt">Sum Sq</span><span class="st">`</span> <span class="op">+</span><span class="st"> `</span><span class="dt">Sum Sq.res</span><span class="st">`</span>))</span>
+<span id="cb9-2"><a href="#cb9-2"></a>m.art.anova</span></code></pre></div>
 <pre><code>## Analysis of Variance of Aligned Rank Transformed Data
 ## 
 ## Table Type: Anova Table (Type III tests) 
@@ -373,7 +439,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## ---
 ## Signif. codes:   0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>We can compare the above results to partial <em>eta</em>-squared calculated on the linear model (the second column below):</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">EtaSq</span>(m.linear, <span class="dt">type=</span><span class="dv">3</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">EtaSq</span>(m.linear, <span class="dt">type=</span><span class="dv">3</span>)</span></code></pre></div>
 <pre><code>##          eta.sq eta.sq.part
 ## X1    0.3562872   0.5991468
 ## X2    0.1890921   0.4423595
@@ -386,11 +452,11 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="in-the-linear-model-for-comparison" class="section level3">
 <h3>in the linear model (for comparison)</h3>
 <p>As a comparison, let’s first derive pairwise contrasts for all levels of X2 in the linear model:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">x2.contrasts =<span class="st"> </span><span class="kw">summary</span>(<span class="kw">pairs</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X2)))</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>x2.contrasts =<span class="st"> </span><span class="kw">summary</span>(<span class="kw">pairs</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X2)))</span></code></pre></div>
 <pre><code>## NOTE: Results may be misleading due to involvement in interactions</code></pre>
 <p>Then divide these estimates by the residual standard deviation to get an estimate of <em>d</em>:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">x2.contrasts<span class="op">$</span>d =<span class="st"> </span>x2.contrasts<span class="op">$</span>estimate <span class="op">/</span><span class="st"> </span><span class="kw">sigmaHat</span>(m.linear)</a>
-<a class="sourceLine" id="cb15-2" title="2">x2.contrasts</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>x2.contrasts<span class="op">$</span>d =<span class="st"> </span>x2.contrasts<span class="op">$</span>estimate <span class="op">/</span><span class="st"> </span><span class="kw">sigmaHat</span>(m.linear)</span>
+<span id="cb15-2"><a href="#cb15-2"></a>x2.contrasts</span></code></pre></div>
 <pre><code>##  contrast estimate    SE  df t.ratio p.value       d
 ##  C - D     -1.9121 0.142 294 -13.428 &lt;.0001  -1.8991
 ##  C - E     -1.8530 0.142 294 -13.013 &lt;.0001  -1.8403
@@ -403,11 +469,11 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="in-art" class="section level3">
 <h3>in ART</h3>
 <p>We can follow the same procedure on the ART model for factor X2:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">m.art.x2 =<span class="st"> </span><span class="kw">artlm</span>(m.art, <span class="st">&quot;X2&quot;</span>)</a>
-<a class="sourceLine" id="cb17-2" title="2">x2.contrasts.art =<span class="st"> </span><span class="kw">summary</span>(<span class="kw">pairs</span>(<span class="kw">emmeans</span>(m.art.x2, <span class="op">~</span><span class="st"> </span>X2)))</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>m.art.x2 =<span class="st"> </span><span class="kw">artlm</span>(m.art, <span class="st">&quot;X2&quot;</span>)</span>
+<span id="cb17-2"><a href="#cb17-2"></a>x2.contrasts.art =<span class="st"> </span><span class="kw">summary</span>(<span class="kw">pairs</span>(<span class="kw">emmeans</span>(m.art.x2, <span class="op">~</span><span class="st"> </span>X2)))</span></code></pre></div>
 <pre><code>## NOTE: Results may be misleading due to involvement in interactions</code></pre>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">x2.contrasts.art<span class="op">$</span>d =<span class="st"> </span>x2.contrasts.art<span class="op">$</span>estimate <span class="op">/</span><span class="st"> </span><span class="kw">sigmaHat</span>(m.art.x2)</a>
-<a class="sourceLine" id="cb19-2" title="2">x2.contrasts.art</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>x2.contrasts.art<span class="op">$</span>d =<span class="st"> </span>x2.contrasts.art<span class="op">$</span>estimate <span class="op">/</span><span class="st"> </span><span class="kw">sigmaHat</span>(m.art.x2)</span>
+<span id="cb19-2"><a href="#cb19-2"></a>x2.contrasts.art</span></code></pre></div>
 <pre><code>##  contrast estimate   SE  df t.ratio p.value       d
 ##  C - D     -123.13 9.28 294 -13.272 &lt;.0001  -1.8769
 ##  C - E     -119.81 9.28 294 -12.914 &lt;.0001  -1.8263
@@ -421,11 +487,11 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="confidence-intervals" class="section level2">
 <h2>Confidence intervals</h2>
 <p>We can also derive confidence intervals on these effect sizes. To do that, we’ll use the <code>d.ci</code> function from the <code>psych</code> package, which also requires us to indicate how many observations were in each group for each contrast. That is easy in this case, as each group has 100 observations. Thus:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1">x2.contrasts.ci =<span class="st"> </span><span class="kw">confint</span>(<span class="kw">pairs</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X2))) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb21-2" title="2"><span class="st">    </span><span class="kw">mutate</span>(<span class="dt">d =</span> estimate <span class="op">/</span><span class="st"> </span><span class="kw">sigmaHat</span>(m.linear)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb21-3" title="3"><span class="st">    </span><span class="kw">cbind</span>(<span class="dt">d =</span> plyr<span class="op">::</span><span class="kw">ldply</span>(.<span class="op">$</span>d, psych<span class="op">::</span>d.ci, <span class="dt">n1 =</span> <span class="dv">100</span>, <span class="dt">n2 =</span> <span class="dv">100</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>x2.contrasts.ci =<span class="st"> </span><span class="kw">confint</span>(<span class="kw">pairs</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X2))) <span class="op">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="st">    </span><span class="kw">mutate</span>(<span class="dt">d =</span> estimate <span class="op">/</span><span class="st"> </span><span class="kw">sigmaHat</span>(m.linear)) <span class="op">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3"></a><span class="st">    </span><span class="kw">cbind</span>(<span class="dt">d =</span> plyr<span class="op">::</span><span class="kw">ldply</span>(.<span class="op">$</span>d, psych<span class="op">::</span>d.ci, <span class="dt">n1 =</span> <span class="dv">100</span>, <span class="dt">n2 =</span> <span class="dv">100</span>))</span></code></pre></div>
 <pre><code>## NOTE: Results may be misleading due to involvement in interactions</code></pre>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1">x2.contrasts.ci</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>x2.contrasts.ci</span></code></pre></div>
 <pre><code>##   contrast    estimate        SE  df   lower.CL   upper.CL          d
 ## 1    C - D -1.91212883 0.1423941 294 -2.2475590 -1.5766987 -1.8990660
 ## 2    C - E -1.85296777 0.1423941 294 -2.1883979 -1.5175376 -1.8403091
@@ -435,11 +501,11 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## 2 -2.2150110 -1.8403091 -1.4604004
 ## 3 -0.2186889  0.0587569  0.3359105</code></pre>
 <p>And from the ART model:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1">x2.contrasts.art.ci =<span class="st"> </span><span class="kw">confint</span>(<span class="kw">pairs</span>(<span class="kw">emmeans</span>(m.art.x2, <span class="op">~</span><span class="st"> </span>X2))) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb25-2" title="2"><span class="st">    </span><span class="kw">mutate</span>(<span class="dt">d =</span> estimate <span class="op">/</span><span class="st"> </span><span class="kw">sigmaHat</span>(m.art.x2)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb25-3" title="3"><span class="st">    </span><span class="kw">cbind</span>(<span class="dt">d =</span> plyr<span class="op">::</span><span class="kw">ldply</span>(.<span class="op">$</span>d, psych<span class="op">::</span>d.ci, <span class="dt">n1 =</span> <span class="dv">100</span>, <span class="dt">n2 =</span> <span class="dv">100</span>)) </a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>x2.contrasts.art.ci =<span class="st"> </span><span class="kw">confint</span>(<span class="kw">pairs</span>(<span class="kw">emmeans</span>(m.art.x2, <span class="op">~</span><span class="st"> </span>X2))) <span class="op">%&gt;%</span></span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="st">    </span><span class="kw">mutate</span>(<span class="dt">d =</span> estimate <span class="op">/</span><span class="st"> </span><span class="kw">sigmaHat</span>(m.art.x2)) <span class="op">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3"></a><span class="st">    </span><span class="kw">cbind</span>(<span class="dt">d =</span> plyr<span class="op">::</span><span class="kw">ldply</span>(.<span class="op">$</span>d, psych<span class="op">::</span>d.ci, <span class="dt">n1 =</span> <span class="dv">100</span>, <span class="dt">n2 =</span> <span class="dv">100</span>)) </span></code></pre></div>
 <pre><code>## NOTE: Results may be misleading due to involvement in interactions</code></pre>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1">x2.contrasts.art.ci</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>x2.contrasts.art.ci</span></code></pre></div>
 <pre><code>##   contrast estimate       SE  df   lower.CL   upper.CL           d    d.lower
 ## 1    C - D  -123.13 9.277428 294 -144.98434 -101.27566 -1.87694379 -2.2551134
 ## 2    C - E  -119.81 9.277428 294 -141.66434  -97.95566 -1.82633505 -2.1997242
@@ -449,18 +515,18 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## 2 -1.82633505 -1.447745
 ## 3  0.05060873  0.327749</code></pre>
 <p>And plotting both, to compare (red dashed line is the true effect):</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1"><span class="kw">rbind</span>(</a>
-<a class="sourceLine" id="cb29-2" title="2">        <span class="kw">cbind</span>(x2.contrasts.ci, <span class="dt">model=</span><span class="st">&quot;linear&quot;</span>), </a>
-<a class="sourceLine" id="cb29-3" title="3">        <span class="kw">cbind</span>(x2.contrasts.art.ci, <span class="dt">model=</span><span class="st">&quot;ART&quot;</span>)</a>
-<a class="sourceLine" id="cb29-4" title="4">    ) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb29-5" title="5"><span class="st">    </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>model, <span class="dt">y=</span>d, <span class="dt">ymin=</span>d.lower, <span class="dt">ymax=</span>d.upper)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb29-6" title="6"><span class="st">    </span><span class="kw">geom_pointrange</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb29-7" title="7"><span class="st">    </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept =</span> true_effect), </a>
-<a class="sourceLine" id="cb29-8" title="8">      <span class="dt">data =</span> <span class="kw">data.frame</span>(<span class="dt">true_effect =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">-2</span>, <span class="dv">0</span>), <span class="dt">contrast =</span> <span class="kw">c</span>(<span class="st">&quot;C - D&quot;</span>, <span class="st">&quot;C - E&quot;</span>, <span class="st">&quot;D - E&quot;</span>)), </a>
-<a class="sourceLine" id="cb29-9" title="9">      <span class="dt">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb29-10" title="10"><span class="st">    </span><span class="kw">facet_grid</span>(contrast <span class="op">~</span><span class="st"> </span>.) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb29-11" title="11"><span class="st">    </span><span class="kw">coord_flip</span>()</a></code></pre></div>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="kw">rbind</span>(</span>
+<span id="cb29-2"><a href="#cb29-2"></a>        <span class="kw">cbind</span>(x2.contrasts.ci, <span class="dt">model=</span><span class="st">&quot;linear&quot;</span>), </span>
+<span id="cb29-3"><a href="#cb29-3"></a>        <span class="kw">cbind</span>(x2.contrasts.art.ci, <span class="dt">model=</span><span class="st">&quot;ART&quot;</span>)</span>
+<span id="cb29-4"><a href="#cb29-4"></a>    ) <span class="op">%&gt;%</span></span>
+<span id="cb29-5"><a href="#cb29-5"></a><span class="st">    </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>model, <span class="dt">y=</span>d, <span class="dt">ymin=</span>d.lower, <span class="dt">ymax=</span>d.upper)) <span class="op">+</span></span>
+<span id="cb29-6"><a href="#cb29-6"></a><span class="st">    </span><span class="kw">geom_pointrange</span>() <span class="op">+</span></span>
+<span id="cb29-7"><a href="#cb29-7"></a><span class="st">    </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept =</span> true_effect), </span>
+<span id="cb29-8"><a href="#cb29-8"></a>      <span class="dt">data =</span> <span class="kw">data.frame</span>(<span class="dt">true_effect =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">-2</span>, <span class="dv">0</span>), <span class="dt">contrast =</span> <span class="kw">c</span>(<span class="st">&quot;C - D&quot;</span>, <span class="st">&quot;C - E&quot;</span>, <span class="st">&quot;D - E&quot;</span>)), </span>
+<span id="cb29-9"><a href="#cb29-9"></a>      <span class="dt">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>) <span class="op">+</span></span>
+<span id="cb29-10"><a href="#cb29-10"></a><span class="st">    </span><span class="kw">facet_grid</span>(contrast <span class="op">~</span><span class="st"> </span>.) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb29-11"><a href="#cb29-11"></a><span class="st">    </span><span class="kw">coord_flip</span>()</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>
 
 

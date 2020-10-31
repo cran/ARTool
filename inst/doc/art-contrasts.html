@@ -12,17 +12,81 @@
 
 <meta name="author" content="Matthew Kay" />
 
-<meta name="date" content="2020-03-19" />
+<meta name="date" content="2020-10-31" />
 
 <title>Contrast tests with ART</title>
 
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -32,14 +96,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -48,9 +114,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -301,7 +367,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Contrast tests with ART</h1>
 <h4 class="author">Matthew Kay</h4>
-<h4 class="date">2020-03-19</h4>
+<h4 class="date">2020-10-31</h4>
 
 
 
@@ -322,36 +388,38 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="libraries-needed-for-this" class="section level2">
 <h2>Libraries needed for this</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(dplyr)      <span class="co">#data_frame, %&gt;%, filter, summarise, group_by</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(emmeans)    <span class="co">#emmeans, contrast</span></a></code></pre></div>
-<pre><code>## Warning: package &#39;emmeans&#39; was built under R version 3.6.3</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">library</span>(phia)       <span class="co">#testInteractions</span></a></code></pre></div>
-<pre><code>## Warning: package &#39;car&#39; was built under R version 3.6.3</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">library</span>(tidyr)      <span class="co">#spread</span></a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="kw">library</span>(ARTool)     <span class="co">#art, artlm</span></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw">library</span>(ggplot2)    <span class="co">#ggplot, stat_..., geom_..., etc</span></a></code></pre></div>
-<pre><code>## Warning: package &#39;ggplot2&#39; was built under R version 3.6.3</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(dplyr)      <span class="co">#data_frame, %&gt;%, filter, summarise, group_by</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(emmeans)    <span class="co">#emmeans, contrast</span></span></code></pre></div>
+<pre><code>## Warning: package &#39;emmeans&#39; was built under R version 4.0.3</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">library</span>(phia)       <span class="co">#testInteractions</span></span></code></pre></div>
+<pre><code>## Warning: package &#39;car&#39; was built under R version 4.0.3</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">library</span>(tidyr)      <span class="co">#spread</span></span></code></pre></div>
+<pre><code>## Warning: package &#39;tidyr&#39; was built under R version 4.0.3</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">library</span>(ARTool)     <span class="co">#art, artlm</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="kw">library</span>(ggplot2)    <span class="co">#ggplot, stat_..., geom_..., etc</span></span></code></pre></div>
 </div>
 <div id="test-dataset" class="section level2">
 <h2>Test dataset</h2>
 <p>Let’s generate some test data where we actually know what the effects are. Specifically,</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">n_per_group =<span class="st"> </span><span class="dv">150</span></a>
-<a class="sourceLine" id="cb7-2" title="2">df =<span class="st"> </span><span class="kw">data_frame</span>(</a>
-<a class="sourceLine" id="cb7-3" title="3">    <span class="dt">X1 =</span> <span class="kw">factor</span>(<span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, n_per_group), <span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, n_per_group))),</a>
-<a class="sourceLine" id="cb7-4" title="4">    <span class="dt">X2 =</span> <span class="kw">factor</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;C&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>), n_per_group<span class="op">*</span><span class="dv">2</span><span class="op">/</span><span class="dv">3</span>)),</a>
-<a class="sourceLine" id="cb7-5" title="5">    <span class="dt">Y =</span> <span class="kw">rnorm</span>(n_per_group<span class="op">*</span><span class="dv">2</span>, </a>
-<a class="sourceLine" id="cb7-6" title="6">        (X1 <span class="op">==</span><span class="st"> &quot;B&quot;</span>)</a>
-<a class="sourceLine" id="cb7-7" title="7">        <span class="op">+</span><span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="st"> </span>(X2 <span class="op">==</span><span class="st"> &quot;D&quot;</span>)</a>
-<a class="sourceLine" id="cb7-8" title="8">        <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(X1 <span class="op">==</span><span class="st"> &quot;B&quot;</span> <span class="op">&amp;</span><span class="st"> </span>X2 <span class="op">==</span><span class="st"> &quot;D&quot;</span>)</a>
-<a class="sourceLine" id="cb7-9" title="9">        <span class="op">-</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(X1 <span class="op">==</span><span class="st"> &quot;A&quot;</span> <span class="op">&amp;</span><span class="st"> </span>X2 <span class="op">==</span><span class="st"> &quot;D&quot;</span>)</a>
-<a class="sourceLine" id="cb7-10" title="10">        <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(X2 <span class="op">==</span><span class="st"> &quot;E&quot;</span>)) </a>
-<a class="sourceLine" id="cb7-11" title="11">)</a></code></pre></div>
-<pre><code>## Warning: `data_frame()` is deprecated, use `tibble()`.
-## This warning is displayed once per session.</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>n_per_group =<span class="st"> </span><span class="dv">150</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>df =<span class="st"> </span><span class="kw">data_frame</span>(</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="dt">X1 =</span> <span class="kw">factor</span>(<span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, n_per_group), <span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, n_per_group))),</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="dt">X2 =</span> <span class="kw">factor</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;C&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>), n_per_group<span class="op">*</span><span class="dv">2</span><span class="op">/</span><span class="dv">3</span>)),</span>
+<span id="cb8-5"><a href="#cb8-5"></a>    <span class="dt">Y =</span> <span class="kw">rnorm</span>(n_per_group<span class="op">*</span><span class="dv">2</span>, </span>
+<span id="cb8-6"><a href="#cb8-6"></a>        (X1 <span class="op">==</span><span class="st"> &quot;B&quot;</span>)</span>
+<span id="cb8-7"><a href="#cb8-7"></a>        <span class="op">+</span><span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="st"> </span>(X2 <span class="op">==</span><span class="st"> &quot;D&quot;</span>)</span>
+<span id="cb8-8"><a href="#cb8-8"></a>        <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(X1 <span class="op">==</span><span class="st"> &quot;B&quot;</span> <span class="op">&amp;</span><span class="st"> </span>X2 <span class="op">==</span><span class="st"> &quot;D&quot;</span>)</span>
+<span id="cb8-9"><a href="#cb8-9"></a>        <span class="op">-</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(X1 <span class="op">==</span><span class="st"> &quot;A&quot;</span> <span class="op">&amp;</span><span class="st"> </span>X2 <span class="op">==</span><span class="st"> &quot;D&quot;</span>)</span>
+<span id="cb8-10"><a href="#cb8-10"></a>        <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(X2 <span class="op">==</span><span class="st"> &quot;E&quot;</span>)) </span>
+<span id="cb8-11"><a href="#cb8-11"></a>)</span></code></pre></div>
+<pre><code>## Warning: `data_frame()` is deprecated as of tibble 1.1.0.
+## Please use `tibble()` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_warnings()` to see where this warning was generated.</code></pre>
 <p>This is normally-distributed error with the same variance at all levels, so we can compare the results of ART to a linear model, which will correctly estimate the effects.</p>
 <p>I pre-ran the above code and saved it as <code>InteractionTestData</code> so that the text here is consistent:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">data</span>(InteractionTestData)</a>
-<a class="sourceLine" id="cb9-2" title="2">df =<span class="st"> </span>InteractionTestData    <span class="co">#save some typing</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">data</span>(InteractionTestData)</span>
+<span id="cb10-2"><a href="#cb10-2"></a>df =<span class="st"> </span>InteractionTestData    <span class="co">#save some typing</span></span></code></pre></div>
 <p>The “true” means from the model look like this:</p>
 <table>
 <thead>
@@ -390,18 +458,18 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tbody>
 </table>
 <p>Which we can see pretty well:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">palette =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;#1b9e77&quot;</span>, <span class="st">&quot;#d95f02&quot;</span>, <span class="st">&quot;#7570b3&quot;</span>)</a>
-<a class="sourceLine" id="cb10-2" title="2"><span class="kw">names</span>(palette) =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;E&quot;</span>)</a>
-<a class="sourceLine" id="cb10-3" title="3"><span class="kw">ggplot</span>(df, <span class="kw">aes</span>(<span class="dt">x=</span>X1, <span class="dt">y=</span>Y, <span class="dt">color=</span>X2)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb10-4" title="4"><span class="st">    </span><span class="kw">geom_violin</span>(<span class="dt">trim=</span><span class="ot">FALSE</span>, <span class="dt">adjust=</span><span class="fl">1.5</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb10-5" title="5"><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">pch=</span><span class="st">&quot;-&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb10-6" title="6"><span class="st">    </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;point&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb10-7" title="7"><span class="st">    </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;line&quot;</span>, <span class="dt">size=</span><span class="dv">1</span>, <span class="dt">mapping=</span><span class="kw">aes</span>(<span class="dt">group=</span>X2)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb10-8" title="8"><span class="st">    </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;point&quot;</span>, <span class="dt">size=</span><span class="dv">9</span>, <span class="dt">mapping=</span><span class="kw">aes</span>(<span class="dt">x=</span><span class="fl">1.5</span>, <span class="dt">group=</span><span class="ot">NA</span>), <span class="dt">pch=</span><span class="st">&quot;+&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb10-9" title="9"><span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks=</span><span class="kw">seq</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>,<span class="dt">by=</span><span class="dv">2</span>), <span class="dt">minor_breaks=</span><span class="op">-</span><span class="dv">6</span><span class="op">:</span><span class="dv">10</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb10-10" title="10"><span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">guide=</span><span class="ot">FALSE</span>, <span class="dt">values=</span>palette) <span class="op">+</span></a>
-<a class="sourceLine" id="cb10-11" title="11"><span class="st">    </span><span class="kw">coord_cartesian</span>(<span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb10-12" title="12"><span class="st">    </span><span class="kw">facet_grid</span>(. <span class="op">~</span><span class="st"> </span>X2)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>palette =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;#1b9e77&quot;</span>, <span class="st">&quot;#d95f02&quot;</span>, <span class="st">&quot;#7570b3&quot;</span>)</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="kw">names</span>(palette) =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;E&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="kw">ggplot</span>(df, <span class="kw">aes</span>(<span class="dt">x=</span>X1, <span class="dt">y=</span>Y, <span class="dt">color=</span>X2)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="st">    </span><span class="kw">geom_violin</span>(<span class="dt">trim=</span><span class="ot">FALSE</span>, <span class="dt">adjust=</span><span class="fl">1.5</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">pch=</span><span class="st">&quot;-&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a><span class="st">    </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;point&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb11-7"><a href="#cb11-7"></a><span class="st">    </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;line&quot;</span>, <span class="dt">size=</span><span class="dv">1</span>, <span class="dt">mapping=</span><span class="kw">aes</span>(<span class="dt">group=</span>X2)) <span class="op">+</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a><span class="st">    </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;point&quot;</span>, <span class="dt">size=</span><span class="dv">9</span>, <span class="dt">mapping=</span><span class="kw">aes</span>(<span class="dt">x=</span><span class="fl">1.5</span>, <span class="dt">group=</span><span class="ot">NA</span>), <span class="dt">pch=</span><span class="st">&quot;+&quot;</span>) <span class="op">+</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a><span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks=</span><span class="kw">seq</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>,<span class="dt">by=</span><span class="dv">2</span>), <span class="dt">minor_breaks=</span><span class="op">-</span><span class="dv">6</span><span class="op">:</span><span class="dv">10</span>) <span class="op">+</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a><span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">guide=</span><span class="ot">FALSE</span>, <span class="dt">values=</span>palette) <span class="op">+</span></span>
+<span id="cb11-11"><a href="#cb11-11"></a><span class="st">    </span><span class="kw">coord_cartesian</span>(<span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb11-12"><a href="#cb11-12"></a><span class="st">    </span><span class="kw">facet_grid</span>(. <span class="op">~</span><span class="st"> </span>X2)</span></code></pre></div>
 <pre><code>## Warning: `fun.y` is deprecated. Use `fun` instead.
 
 ## Warning: `fun.y` is deprecated. Use `fun` instead.
@@ -440,8 +508,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tbody>
 </table>
 <p>Let’s fit a linear model:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">m.linear =<span class="st"> </span><span class="kw">lm</span>(Y <span class="op">~</span><span class="st"> </span>X1<span class="op">*</span>X2, <span class="dt">data=</span>df)</a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="kw">anova</span>(m.linear)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>m.linear =<span class="st"> </span><span class="kw">lm</span>(Y <span class="op">~</span><span class="st"> </span>X1<span class="op">*</span>X2, <span class="dt">data=</span>df)</span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="kw">anova</span>(m.linear)</span></code></pre></div>
 <pre><code>## Analysis of Variance Table
 ## 
 ## Response: Y
@@ -453,8 +521,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>Now with ART:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">m.art =<span class="st"> </span><span class="kw">art</span>(Y <span class="op">~</span><span class="st"> </span>X1<span class="op">*</span>X2, <span class="dt">data=</span>df)</a>
-<a class="sourceLine" id="cb14-2" title="2"><span class="kw">anova</span>(m.art)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>m.art =<span class="st"> </span><span class="kw">art</span>(Y <span class="op">~</span><span class="st"> </span>X1<span class="op">*</span>X2, <span class="dt">data=</span>df)</span>
+<span id="cb15-2"><a href="#cb15-2"></a><span class="kw">anova</span>(m.art)</span></code></pre></div>
 <pre><code>## Analysis of Variance of Aligned Rank Transformed Data
 ## 
 ## Table Type: Anova Table (Type III tests) 
@@ -471,12 +539,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="contrast-tests-of-main-effects" class="section level3">
 <h3>Contrast tests of main effects</h3>
 <p>For the main effects, let’s look at contrast tests for the linear model:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">contrast</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X1), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">contrast</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X1), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</span></code></pre></div>
 <pre><code>##  contrast estimate    SE  df t.ratio p.value
 ##  A - B       -2.44 0.116 294 -20.963 &lt;.0001 
 ## 
 ## Results are averaged over the levels of: X2</code></pre>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">contrast</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">contrast</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</span></code></pre></div>
 <pre><code>##  contrast estimate    SE  df t.ratio p.value
 ##  C - D     -1.9121 0.142 294 -13.428 &lt;.0001 
 ##  C - E     -1.8530 0.142 294 -13.013 &lt;.0001 
@@ -485,12 +553,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## Results are averaged over the levels of: X1 
 ## P value adjustment: tukey method for comparing a family of 3 estimates</code></pre>
 <p>These are about right: The “true” effect for <code>A - B</code> is <code>-2.3333</code>, for <code>C - D</code> and <code>C - E</code> is <code>-2</code>, and for <code>D - E</code> is <code>0</code> (see table above). From ART:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">contrast</span>(<span class="kw">emmeans</span>(<span class="kw">artlm</span>(m.art, <span class="st">&quot;X1&quot;</span>), <span class="op">~</span><span class="st"> </span>X1), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">contrast</span>(<span class="kw">emmeans</span>(<span class="kw">artlm</span>(m.art, <span class="st">&quot;X1&quot;</span>), <span class="op">~</span><span class="st"> </span>X1), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</span></code></pre></div>
 <pre><code>##  contrast estimate   SE  df t.ratio p.value
 ##  A - B        -137 6.19 294 -22.098 &lt;.0001 
 ## 
 ## Results are averaged over the levels of: X2</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">contrast</span>(<span class="kw">emmeans</span>(<span class="kw">artlm</span>(m.art, <span class="st">&quot;X2&quot;</span>), <span class="op">~</span><span class="st"> </span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="kw">contrast</span>(<span class="kw">emmeans</span>(<span class="kw">artlm</span>(m.art, <span class="st">&quot;X2&quot;</span>), <span class="op">~</span><span class="st"> </span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</span></code></pre></div>
 <pre><code>##  contrast estimate   SE  df t.ratio p.value
 ##  C - D     -123.13 9.28 294 -13.272 &lt;.0001 
 ##  C - E     -119.81 9.28 294 -12.914 &lt;.0001 
@@ -503,67 +571,67 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="tests-of-differences-in-pairwise-combinations-of-levels-between-factors-in-interactions" class="section level3">
 <h3>Tests of differences in pairwise combinations of levels between factors in interactions</h3>
 <p>Now let’s look at tests of differences in combinations of levels between factors:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">contrast</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X1<span class="op">:</span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">contrast</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X1<span class="op">:</span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</span></code></pre></div>
 <pre><code>##  contrast   estimate    SE  df t.ratio p.value
-##  A,C - B,C -1.290161 0.201 294  -6.407 &lt;.0001 
-##  A,C - A,D -0.000506 0.201 294  -0.003 1.0000 
-##  A,C - B,D -5.113912 0.201 294 -25.395 &lt;.0001 
-##  A,C - A,E -2.044007 0.201 294 -10.150 &lt;.0001 
-##  A,C - B,E -2.952089 0.201 294 -14.660 &lt;.0001 
-##  B,C - A,D  1.289654 0.201 294   6.404 &lt;.0001 
-##  B,C - B,D -3.823751 0.201 294 -18.988 &lt;.0001 
-##  B,C - A,E -0.753846 0.201 294  -3.743 0.0030 
-##  B,C - B,E -1.661928 0.201 294  -8.253 &lt;.0001 
-##  A,D - B,D -5.113406 0.201 294 -25.392 &lt;.0001 
-##  A,D - A,E -2.043501 0.201 294 -10.148 &lt;.0001 
-##  A,D - B,E -2.951583 0.201 294 -14.657 &lt;.0001 
-##  B,D - A,E  3.069905 0.201 294  15.245 &lt;.0001 
-##  B,D - B,E  2.161823 0.201 294  10.735 &lt;.0001 
-##  A,E - B,E -0.908082 0.201 294  -4.509 0.0001 
+##  A C - B C -1.290161 0.201 294  -6.407 &lt;.0001 
+##  A C - A D -0.000506 0.201 294  -0.003 1.0000 
+##  A C - B D -5.113912 0.201 294 -25.395 &lt;.0001 
+##  A C - A E -2.044007 0.201 294 -10.150 &lt;.0001 
+##  A C - B E -2.952089 0.201 294 -14.660 &lt;.0001 
+##  B C - A D  1.289654 0.201 294   6.404 &lt;.0001 
+##  B C - B D -3.823751 0.201 294 -18.988 &lt;.0001 
+##  B C - A E -0.753846 0.201 294  -3.743 0.0030 
+##  B C - B E -1.661928 0.201 294  -8.253 &lt;.0001 
+##  A D - B D -5.113406 0.201 294 -25.392 &lt;.0001 
+##  A D - A E -2.043501 0.201 294 -10.148 &lt;.0001 
+##  A D - B E -2.951583 0.201 294 -14.657 &lt;.0001 
+##  B D - A E  3.069905 0.201 294  15.245 &lt;.0001 
+##  B D - B E  2.161823 0.201 294  10.735 &lt;.0001 
+##  A E - B E -0.908082 0.201 294  -4.509 0.0001 
 ## 
 ## P value adjustment: tukey method for comparing a family of 6 estimates</code></pre>
 <p>And for ART:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="co">#DO NOT DO THIS!</span></a>
-<a class="sourceLine" id="cb26-2" title="2"><span class="kw">contrast</span>(<span class="kw">emmeans</span>(<span class="kw">artlm</span>(m.art, <span class="st">&quot;X1:X2&quot;</span>), <span class="op">~</span><span class="st"> </span>X1<span class="op">:</span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="co">#DO NOT DO THIS!</span></span>
+<span id="cb27-2"><a href="#cb27-2"></a><span class="kw">contrast</span>(<span class="kw">emmeans</span>(<span class="kw">artlm</span>(m.art, <span class="st">&quot;X1:X2&quot;</span>), <span class="op">~</span><span class="st"> </span>X1<span class="op">:</span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</span></code></pre></div>
 <pre><code>##  contrast  estimate   SE  df t.ratio p.value
-##  A,C - B,C     76.9 12.4 294   6.202 &lt;.0001 
-##  A,C - A,D    125.1 12.4 294  10.091 &lt;.0001 
-##  A,C - B,D    -45.3 12.4 294  -3.650 0.0042 
-##  A,C - A,E    -12.1 12.4 294  -0.974 0.9258 
-##  A,C - B,E     87.2 12.4 294   7.030 &lt;.0001 
-##  B,C - A,D     48.2 12.4 294   3.889 0.0017 
-##  B,C - B,D   -122.2 12.4 294  -9.853 &lt;.0001 
-##  B,C - A,E    -89.0 12.4 294  -7.177 &lt;.0001 
-##  B,C - B,E     10.3 12.4 294   0.828 0.9623 
-##  A,D - B,D   -170.4 12.4 294 -13.742 &lt;.0001 
-##  A,D - A,E   -137.2 12.4 294 -11.066 &lt;.0001 
-##  A,D - B,E    -38.0 12.4 294  -3.062 0.0288 
-##  B,D - A,E     33.2 12.4 294   2.676 0.0832 
-##  B,D - B,E    132.4 12.4 294  10.680 &lt;.0001 
-##  A,E - B,E     99.2 12.4 294   8.004 &lt;.0001 
+##  A C - B C     76.9 12.4 294   6.202 &lt;.0001 
+##  A C - A D    125.1 12.4 294  10.091 &lt;.0001 
+##  A C - B D    -45.3 12.4 294  -3.650 0.0042 
+##  A C - A E    -12.1 12.4 294  -0.974 0.9258 
+##  A C - B E     87.2 12.4 294   7.030 &lt;.0001 
+##  B C - A D     48.2 12.4 294   3.889 0.0017 
+##  B C - B D   -122.2 12.4 294  -9.853 &lt;.0001 
+##  B C - A E    -89.0 12.4 294  -7.177 &lt;.0001 
+##  B C - B E     10.3 12.4 294   0.828 0.9623 
+##  A D - B D   -170.4 12.4 294 -13.742 &lt;.0001 
+##  A D - A E   -137.2 12.4 294 -11.066 &lt;.0001 
+##  A D - B E    -38.0 12.4 294  -3.062 0.0288 
+##  B D - A E     33.2 12.4 294   2.676 0.0832 
+##  B D - B E    132.4 12.4 294  10.680 &lt;.0001 
+##  A E - B E     99.2 12.4 294   8.004 &lt;.0001 
 ## 
 ## P value adjustment: tukey method for comparing a family of 6 estimates</code></pre>
 <p>Very different results.</p>
 <p>The linear model tests are easy to interpret: they tell us the expected mean difference between combinations of levels.</p>
 <p>The ART results are more difficult to interpret. Take <code>A,C - A,D</code>, which looks like this:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1">df <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb28-2" title="2"><span class="st">    </span><span class="kw">filter</span>(X1 <span class="op">==</span><span class="st"> &quot;A&quot;</span>, X2 <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb28-3" title="3"><span class="st">    </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>X1<span class="op">:</span>X2, <span class="dt">y=</span>Y, <span class="dt">color=</span>X2)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb28-4" title="4"><span class="st">    </span><span class="kw">geom_violin</span>(<span class="dt">trim=</span><span class="ot">FALSE</span>, <span class="dt">adjust=</span><span class="fl">1.5</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb28-5" title="5"><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">pch=</span><span class="st">&quot;-&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb28-6" title="6"><span class="st">    </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;point&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb28-7" title="7"><span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks=</span><span class="kw">seq</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>,<span class="dt">by=</span><span class="dv">2</span>), <span class="dt">minor_breaks=</span><span class="op">-</span><span class="dv">6</span><span class="op">:</span><span class="dv">10</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb28-8" title="8"><span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">guide=</span><span class="ot">FALSE</span>, <span class="dt">values=</span>palette) <span class="op">+</span></a>
-<a class="sourceLine" id="cb28-9" title="9"><span class="st">    </span><span class="kw">coord_cartesian</span>(<span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>)) </a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>df <span class="op">%&gt;%</span></span>
+<span id="cb29-2"><a href="#cb29-2"></a><span class="st">    </span><span class="kw">filter</span>(X1 <span class="op">==</span><span class="st"> &quot;A&quot;</span>, X2 <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb29-3"><a href="#cb29-3"></a><span class="st">    </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>X1<span class="op">:</span>X2, <span class="dt">y=</span>Y, <span class="dt">color=</span>X2)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb29-4"><a href="#cb29-4"></a><span class="st">    </span><span class="kw">geom_violin</span>(<span class="dt">trim=</span><span class="ot">FALSE</span>, <span class="dt">adjust=</span><span class="fl">1.5</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb29-5"><a href="#cb29-5"></a><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">pch=</span><span class="st">&quot;-&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span></span>
+<span id="cb29-6"><a href="#cb29-6"></a><span class="st">    </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;point&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb29-7"><a href="#cb29-7"></a><span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks=</span><span class="kw">seq</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>,<span class="dt">by=</span><span class="dv">2</span>), <span class="dt">minor_breaks=</span><span class="op">-</span><span class="dv">6</span><span class="op">:</span><span class="dv">10</span>) <span class="op">+</span></span>
+<span id="cb29-8"><a href="#cb29-8"></a><span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">guide=</span><span class="ot">FALSE</span>, <span class="dt">values=</span>palette) <span class="op">+</span></span>
+<span id="cb29-9"><a href="#cb29-9"></a><span class="st">    </span><span class="kw">coord_cartesian</span>(<span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>)) </span></code></pre></div>
 <pre><code>## Warning: `fun.y` is deprecated. Use `fun` instead.</code></pre>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>The linear model correctly estimates this difference as <code>~0</code>, which is both the true effect and what we should expect from a visual inspection of the data. Unlike the linear model, the ART model gives us a statistically significant difference between <code>A,C</code> and <code>A,D</code>, which if we interpret in the same way as the linear model is obviously incorrect.</p>
 <p>The key here is to understand that ART is reporting differences with the main effects subtracted out. That is, the <code>A,C - A,D</code> effect is something like the difference between this combination of levels if we first subtracted out the effect of <code>C - D</code>. We can see this if we take the ART estimate for <code>C - D</code> in the <code>emmeans</code> output for <code>X2</code> above (<code>-123.13</code>) and the ART estimate for <code>A,C - A,D</code> (<code>125.12</code>) here, we can get approximate an estimate of the difference (<code>-123.13 + 125.12 == 1.99</code>) that is consistent with the expected 0 (given the SE here).</p>
 <p>If we first combine the factors before aligning-and-ranking, we can get an estimate of these effects:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="co">#DO NOT DO THIS WITHOUT READING THE </span><span class="al">NOTE</span><span class="co"> BELOW</span></a>
-<a class="sourceLine" id="cb30-2" title="2">df<span class="op">$</span>X =<span class="st"> </span><span class="kw">with</span>(df, X1<span class="op">:</span>X2)</a>
-<a class="sourceLine" id="cb30-3" title="3">m.art<span class="fl">.12</span> =<span class="st"> </span><span class="kw">art</span>(Y <span class="op">~</span><span class="st"> </span>X, <span class="dt">data=</span>df)</a>
-<a class="sourceLine" id="cb30-4" title="4"><span class="kw">contrast</span>(<span class="kw">emmeans</span>(<span class="kw">artlm</span>(m.art<span class="fl">.12</span>, <span class="st">&quot;X&quot;</span>), <span class="op">~</span><span class="st"> </span>X), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="co">#DO NOT DO THIS WITHOUT READING THE </span><span class="al">NOTE</span><span class="co"> BELOW</span></span>
+<span id="cb31-2"><a href="#cb31-2"></a>df<span class="op">$</span>X =<span class="st"> </span><span class="kw">with</span>(df, X1<span class="op">:</span>X2)</span>
+<span id="cb31-3"><a href="#cb31-3"></a>m.art<span class="fl">.12</span> =<span class="st"> </span><span class="kw">art</span>(Y <span class="op">~</span><span class="st"> </span>X, <span class="dt">data=</span>df)</span>
+<span id="cb31-4"><a href="#cb31-4"></a><span class="kw">contrast</span>(<span class="kw">emmeans</span>(<span class="kw">artlm</span>(m.art<span class="fl">.12</span>, <span class="st">&quot;X&quot;</span>), <span class="op">~</span><span class="st"> </span>X), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>)</span></code></pre></div>
 <pre><code>##  contrast  estimate   SE  df t.ratio p.value
 ##  A:C - A:D     1.96 8.91 294   0.220 0.9999 
 ##  A:C - A:E  -100.96 8.91 294 -11.333 &lt;.0001 
@@ -588,62 +656,65 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h3>Tests of <em>differences of differences</em> in interactions</h3>
 <p>While tests of differences of combinations of levels between factors have issues in ART, we can test <em>differences of differences</em>; e.g., for the interaction <code>X1:X2</code>, we might ask, is the difference <code>A - B</code> different when <code>X2 = C</code> compared to when <code>X2 = D</code>? We can test this using the <code>interaction</code> argument to the <code>contrast</code> function in the <code>emmeans</code> package.</p>
 <p>Before we test, let’s try to visualize what’s going on in just this interaction:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1">plot_interaction_for_X2_levels =<span class="st"> </span><span class="cf">function</span>(...) {</a>
-<a class="sourceLine" id="cb32-2" title="2">    x2_levels =<span class="st"> </span><span class="kw">c</span>(...)</a>
-<a class="sourceLine" id="cb32-3" title="3">    df. =<span class="st"> </span><span class="kw">filter</span>(df, X2 <span class="op">%in%</span><span class="st"> </span>x2_levels)</a>
-<a class="sourceLine" id="cb32-4" title="4">    X1_in_X2 =<span class="st"> </span>df. <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb32-5" title="5"><span class="st">        </span><span class="kw">group_by</span>(X1, X2) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb32-6" title="6"><span class="st">        </span><span class="kw">summarise</span>(<span class="dt">Y =</span> <span class="kw">mean</span>(Y)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb32-7" title="7"><span class="st">        </span><span class="kw">spread</span>(X1, Y)</a>
-<a class="sourceLine" id="cb32-8" title="8">    <span class="kw">print</span>(<span class="kw">ggplot</span>(df., <span class="kw">aes</span>(<span class="dt">x=</span>X1, <span class="dt">y=</span>Y, <span class="dt">color=</span>X2)) <span class="op">+</span><span class="st">  </span></a>
-<a class="sourceLine" id="cb32-9" title="9"><span class="st">        </span><span class="kw">geom_violin</span>(<span class="dt">trim=</span><span class="ot">FALSE</span>, <span class="dt">adjust=</span><span class="fl">1.5</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb32-10" title="10"><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">pch=</span><span class="st">&quot;-&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb32-11" title="11"><span class="st">        </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;point&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb32-12" title="12"><span class="st">        </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;line&quot;</span>, <span class="dt">size=</span><span class="dv">1</span>, <span class="dt">mapping=</span><span class="kw">aes</span>(<span class="dt">group=</span>X2), <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb32-13" title="13"><span class="st">        </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">x=</span><span class="fl">2.2</span>, <span class="dt">ymin=</span>A, <span class="dt">ymax=</span>B, <span class="dt">y=</span><span class="ot">NULL</span>),  </a>
-<a class="sourceLine" id="cb32-14" title="14">            <span class="dt">data=</span>X1_in_X2, <span class="dt">width=</span>.<span class="dv">19</span>, <span class="dt">size=</span><span class="fl">0.8</span>, <span class="dt">color=</span><span class="st">&quot;black&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb32-15" title="15"><span class="st">        </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">x=</span><span class="fl">2.35</span>, <span class="dt">y=</span>(A <span class="op">+</span><span class="st"> </span>B)<span class="op">/</span><span class="dv">2</span>, <span class="dt">label=</span><span class="kw">paste</span>(<span class="st">&quot;A - B |&quot;</span>, X2)), </a>
-<a class="sourceLine" id="cb32-16" title="16">            <span class="dt">data=</span>X1_in_X2, <span class="dt">hjust=</span><span class="dv">0</span>, <span class="dt">size=</span><span class="dv">5</span>, <span class="dt">color=</span><span class="st">&quot;black&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb32-17" title="17"><span class="st">        </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks=</span><span class="kw">seq</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>,<span class="dt">by=</span><span class="dv">2</span>), <span class="dt">minor_breaks=</span><span class="op">-</span><span class="dv">6</span><span class="op">:</span><span class="dv">10</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb32-18" title="18"><span class="st">        </span><span class="kw">scale_color_manual</span>(<span class="dt">guide=</span><span class="ot">FALSE</span>, <span class="dt">values=</span>palette[x2_levels]) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb32-19" title="19"><span class="st">        </span><span class="kw">coord_cartesian</span>(<span class="dt">xlim=</span><span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">3.5</span>), <span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb32-20" title="20"><span class="st">        </span><span class="kw">facet_grid</span>(. <span class="op">~</span><span class="st"> </span>X2))</a>
-<a class="sourceLine" id="cb32-21" title="21">}</a>
-<a class="sourceLine" id="cb32-22" title="22"><span class="kw">plot_interaction_for_X2_levels</span>(<span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>plot_interaction_for_X2_levels =<span class="st"> </span><span class="cf">function</span>(...) {</span>
+<span id="cb33-2"><a href="#cb33-2"></a>    x2_levels =<span class="st"> </span><span class="kw">c</span>(...)</span>
+<span id="cb33-3"><a href="#cb33-3"></a>    df. =<span class="st"> </span><span class="kw">filter</span>(df, X2 <span class="op">%in%</span><span class="st"> </span>x2_levels)</span>
+<span id="cb33-4"><a href="#cb33-4"></a>    X1_in_X2 =<span class="st"> </span>df. <span class="op">%&gt;%</span></span>
+<span id="cb33-5"><a href="#cb33-5"></a><span class="st">        </span><span class="kw">group_by</span>(X1, X2) <span class="op">%&gt;%</span></span>
+<span id="cb33-6"><a href="#cb33-6"></a><span class="st">        </span><span class="kw">summarise</span>(<span class="dt">Y =</span> <span class="kw">mean</span>(Y)) <span class="op">%&gt;%</span></span>
+<span id="cb33-7"><a href="#cb33-7"></a><span class="st">        </span><span class="kw">spread</span>(X1, Y)</span>
+<span id="cb33-8"><a href="#cb33-8"></a>    <span class="kw">print</span>(<span class="kw">ggplot</span>(df., <span class="kw">aes</span>(<span class="dt">x=</span>X1, <span class="dt">y=</span>Y, <span class="dt">color=</span>X2)) <span class="op">+</span><span class="st">  </span></span>
+<span id="cb33-9"><a href="#cb33-9"></a><span class="st">        </span><span class="kw">geom_violin</span>(<span class="dt">trim=</span><span class="ot">FALSE</span>, <span class="dt">adjust=</span><span class="fl">1.5</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb33-10"><a href="#cb33-10"></a><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">pch=</span><span class="st">&quot;-&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span></span>
+<span id="cb33-11"><a href="#cb33-11"></a><span class="st">        </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;point&quot;</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb33-12"><a href="#cb33-12"></a><span class="st">        </span><span class="kw">stat_summary</span>(<span class="dt">fun.y=</span>mean, <span class="dt">geom=</span><span class="st">&quot;line&quot;</span>, <span class="dt">size=</span><span class="dv">1</span>, <span class="dt">mapping=</span><span class="kw">aes</span>(<span class="dt">group=</span>X2), <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>) <span class="op">+</span></span>
+<span id="cb33-13"><a href="#cb33-13"></a><span class="st">        </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">x=</span><span class="fl">2.2</span>, <span class="dt">ymin=</span>A, <span class="dt">ymax=</span>B, <span class="dt">y=</span><span class="ot">NULL</span>),  </span>
+<span id="cb33-14"><a href="#cb33-14"></a>            <span class="dt">data=</span>X1_in_X2, <span class="dt">width=</span>.<span class="dv">19</span>, <span class="dt">size=</span><span class="fl">0.8</span>, <span class="dt">color=</span><span class="st">&quot;black&quot;</span>) <span class="op">+</span></span>
+<span id="cb33-15"><a href="#cb33-15"></a><span class="st">        </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">x=</span><span class="fl">2.35</span>, <span class="dt">y=</span>(A <span class="op">+</span><span class="st"> </span>B)<span class="op">/</span><span class="dv">2</span>, <span class="dt">label=</span><span class="kw">paste</span>(<span class="st">&quot;A - B |&quot;</span>, X2)), </span>
+<span id="cb33-16"><a href="#cb33-16"></a>            <span class="dt">data=</span>X1_in_X2, <span class="dt">hjust=</span><span class="dv">0</span>, <span class="dt">size=</span><span class="dv">5</span>, <span class="dt">color=</span><span class="st">&quot;black&quot;</span>) <span class="op">+</span></span>
+<span id="cb33-17"><a href="#cb33-17"></a><span class="st">        </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks=</span><span class="kw">seq</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>,<span class="dt">by=</span><span class="dv">2</span>), <span class="dt">minor_breaks=</span><span class="op">-</span><span class="dv">6</span><span class="op">:</span><span class="dv">10</span>) <span class="op">+</span></span>
+<span id="cb33-18"><a href="#cb33-18"></a><span class="st">        </span><span class="kw">scale_color_manual</span>(<span class="dt">guide=</span><span class="ot">FALSE</span>, <span class="dt">values=</span>palette[x2_levels]) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb33-19"><a href="#cb33-19"></a><span class="st">        </span><span class="kw">coord_cartesian</span>(<span class="dt">xlim=</span><span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">3.5</span>), <span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">6</span>,<span class="dv">10</span>)) <span class="op">+</span></span>
+<span id="cb33-20"><a href="#cb33-20"></a><span class="st">        </span><span class="kw">facet_grid</span>(. <span class="op">~</span><span class="st"> </span>X2))</span>
+<span id="cb33-21"><a href="#cb33-21"></a>}</span>
+<span id="cb33-22"><a href="#cb33-22"></a><span class="kw">plot_interaction_for_X2_levels</span>(<span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>)</span></code></pre></div>
+<pre><code>## `summarise()` regrouping output by &#39;X1&#39; (override with `.groups` argument)</code></pre>
 <pre><code>## Warning: `fun.y` is deprecated. Use `fun` instead.
 
 ## Warning: `fun.y` is deprecated. Use `fun` instead.</code></pre>
 <p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAkAAAAGACAMAAAByRC0tAAABs1BMVEUAAAAAADUAADoAAF4AAGYANTUANV4ANYQAOpAAXqgAZrYZGWIZP4EZYp8aGhobiEMbnlUbnmYbnnccq8gkuNczMzM1AAA1NTU1NV41XoQ1Xqg1hMk6AAA6ADo6Ojo6kNs/GRk/GWI/P4FJ0OlNTU1NTW5NTY5NbqtNjsheAABeNQBeNTVeXgBehKheqOtiGRliGT9in9lmAABmADpmOpBmtv9uTU1uTW5uTY5ubo5ubqtuq+SBPxmBPz+BvdmENQCEqMmEyeuOTU2OTW6OTY6Obk2ObquOjo6OyP+QOgCQtpCQ2/+fYhmf2dmoXgCoXjWohDWohF6ohISoq3ioycmoyeuo6+urbk2rbm6rbo6rjk2ryKur5Mir5OSr5P+2ZgC2/9u2//+9gT+92dnBuHvIjk3I///JhDXJqF7JqITJyevJ6+vZXwLZXwPZa4vZdqLZn2LZvYHZ2Z/Z2b3Z2dnai7zbkDrb///d0JDgs9vkq27k///nqDXrqF7ryYTryajrycnr66jr68nr6+vsawPvdgTziw74szr/tmb/yI7/25D/5Kv//7b//8j//9v//+T///9TbkpoAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAWmklEQVR4nO3d/YMkR1kH8IlEhahRRzgV1AhschcQX0AuYU8NXkLYqMQ3YCPIRdQ7UDpCIAbd9QK5Ebhlstn+k+mefqqnq7uqu+qpruqnp7/fH+7m7qbmqa35XPXLdNescgQJyGrqDiDzDgAhQQEgJCgAhAQFgJCgABASFE9Abyw9GAgKAPGCgaAAEC8YCAoA8YKBoAAQLxgICgDxgoGgABAvGAgKAPGCgaAAEC8YCMosAX3n8ccf/+V/m7QLAgbi9d8vhuHxP5mwB2XmCOhff+kLb7zxN9MKEjAQr3+4GIbv/tHEgmYI6Lt//BfFr9/7s0lHTsBA7AC98fpHZEzFMwL0nYm3XrsIGIgKUPXfabrMEdCvTFmdImAgKkDf+3MA8szUk/YuAgYCMxAz2AeqUgGaeoM+Q0A4CquCozB2cB6oDM4DzTkYCAoA8YKBoAAQLxgICgDxgoGgABAvGAgKE9AmUngvHK07PSXjDgTzdSccCADyLAlAVBKAeCUBiEoCEK8kAFFJAOKVBCAqCUC8kgBEJQGIVxKAqCQA8UoCEJUEIF5JAKKSAMQrCUBUEoB4JQGISgIQryQAUUkXQNtn7+X55e2j6+cApEoCEJV0AHRx9NS9/Or0JD+7AUCqJABRyWFAd5/8ajEDXb5wr5qJAGhXEoCopOsmbHt8nl8+f6f40weK9D0bWWIGAV1cV4DKRPOcsFVQ8rgDcdAzEABtAGhf0hUQ9oH0kgBEJV0BXZ3ewlFYoyQAUUlXQDgPpJcEICrpAqibaN1J2CooAKRKAhCvJABRSQDilQQgKglAvJIARCUBiFcSgKgkAPFKAhCVBCBeSQCikgDEKwlAVBKAeCUBiEoCEK8kAFFJAOKVBCAqyQOEIHowA3mWjDsQBz8DRetOwlZBASBVEoB4JQGISgIQryQAUUkA4pUEICoJQLySAEQlAYhXEoCoJADxSgIQlQQgXkmRgLJxe+ESAOIFgCgAxAsAUQCIFwCiABAvAEQBIF4AiOIOaHuzXKgMgKikTEDpBTkDKpd2Oatvjo/WnYStggJAFGdAu/WBXsDyLqokAFVhzEBY4k5ssmyy0sP7QFjeRSsZdyB4r5tJnoG2z9zJL57CJkyVFAkoFwwIi2zqJQGoCmYgXgCI4gwovzg6elJNQAAEQBR3QFqidSdhq6AAEAWAeBEKKL0gAOIFgCgAxItEQBkAAZB6eU6j8jQ0AKVrFRQAogAQL2IBpRYEQLwIBFR9kgpAyVoFRSCg17Is+18AStcqKAIBVZdyAFCyVkGRCyixICYgRFyy1u+JgxnIs2TcgWC8bg0o7RQEQLyIA7S/mhWAErUKijxA+U92R2EAlKxVUKQBalxOn3YbBkC8iAPUeHMAKE2roAgDpN/Pk1IQAPEiDZD27qTciAEQL7IAtW8oBKAUrYIiClDnhtSEUxAA8SILUOf9AaAErYIiCZDpjvhkggCIF1GAqq6oE4kVoFSCAIgXQYDU/KMBSiYIgHiRA8i2pIs4QFenuLW5UVIKIOuSQImmIHdAd092K3QAUFVSDKD6DdI3YakEOQPaL28HQBs5gDI7oDQbMWdA2+Ov0CYMS9zJSe+adkkXvBsGdPNkt9BmlWieE7YKSh53IFxft59Iio2YO6BjrFDWLCkCkDbHdDZhSTZizoAuXwSgZkkZgJrv0I8KQN9uAYovyBlQeRSGTdi+pARA+k7OjwtA/9160yQBuryNrzpolBQBSHuDDJuwBFOQOyAt0bqTsFVQJABqHWWZZqD4UxAA8SICkP6emGYgAIrYKiizARRbEADxMhdA0acgAOIFgFRPAYhXcnpA7bPQJaD0F7cCEC/yAGUUAErVKijiAGWZWRAARWsVFAmA9LtRAWjXHVar9XrkbgxHACD9fvjMIgiAHAJAGqBVHbmAZGW9nroHk8QFULJryjAD+SXyQARvwlb0huKjDJcsFZBZUA5AvlkoIMsUBEDeAaC8fSKRAOF6IKcAUA2ofj8JUKT+7QNAvMgApG3DtDcIgHyyVEA9d/VUgERdVC8X0HqdXpBAQNrlHAQoUvcaOQhAeb5UQNb7wgDII8sFtOkHJOrOVADSIgVQQ5ABUKTeNQNAvAgBZN2N3n0OBkBuASALoEid03IAgNaLBlR9VXPZFe3GQpGArk5PRAIqO5RakBRA1Xd9d9+rApCwFcqKnB0BkIocQJlaSEpbnaMEFKlvejwAbT/zOQBSEQNoY7qXpwQkbpHNq1e+Vm3ChC1x9z/r9fqj+TKvSSxjXsiuAJS2G8OAzm7J3AdaL34Goq60zgNJWyd6e3wuFNCuQ6k/DRMIqHUUFqln7TgDOjsqc0sqoNRTkBxAtaDWDBSpZ+04A8qlHsYvHpDxZCIAOQeATLvRIgE1Eq07/k3Wu6OwJQOiKai5CcsAyDVrzECGKQiAnFOfAEorSBSgzl5QBkDOAaANTUGNTVi2ASDXLBhQ48OKzvfGLxQQ43TgkgE1HuqANgDk3mSxgLRPS7PGJiwDIJ8WSwWkf9qu3WK4ASD3FvRpfGpBkQfC4VoM/RnNI3kA8mmxVEDtZ+wBZQDk02Lfp4UBav95D6j8o3RAkeK/Vt3a+HD2YXzdaaY9WKV+Q2c6AzXRJL0kKPJAMK5HVYCqltJnoEi9CQKUdBsGQBRpgDwRAFCjDQAVHvwQlH7qo7Ck2zCxgDIDoAfPPfKX5jb3q+WAf/4T39o/933tf/zgf/ZUFQVozQHUyMEAyjiAXttdE00NNUBvXVt9yNzmvlpRulbTBbRa2fiVkQXI00D7oC3hFBQZEOeuwOrIzQTo5ff8wXu+bGxzf/WH5W8/+FhtRAO0+8cf/u3K0rrMvAG1u3U4gPoE2aYnG6C3n37fNysLnZCR4nc1RXUBFQBtE9hGICAPA90TP+mmoEkB2VvVN8Q3ARUQ3n76F79larIHpICZABUCrZ2RBshjEjGddVwCIOv+0Q4QPW4AevBcsQV62bwfU2/C6o2UCdCD58z8ykgCtPYEZOpYKkHTAbLvX1sAvXXtQ+UvxklE7Sc/Um/hTICKnSjrTpAoQF4CzB97pNqIRR2IrBeQU7MGoN3ks5uGuqkPtD6oppj5A3IUUPvZnwdKKSguoNy+Pl3fAb4R0NtPkxG1I3y/8Qcy8uDveneiZ7IJIxKugFRXWoASbcSiA7JNQX3H90ZA9SSjEBgANYiYAFm2f7t0AL3zp9+fCpAPAPtH72mmoMkA9berG9WA6m3Xy6Yj+T0gtZEyH8abTwKU6QL65OrTxjdme/Mo7gplyoQLgL7rPpIIijkQ/7e7uHkkQPXsYZxG9psw9Y/GE4n2LZhpE/bm6tGvd9+Wy+fv5Ntn7sQbN5+Lm5t+2puwNIJiAsrGnIG+sd+RMRzJdz+tGOOjjHdfWj3RAXRxo/jlrpqC/H+4wdQXpw6//0PXnc0d0O6VWVd0dAC9/XR9APUNw/lkMvLIb39J/Y3hw9RP2Ocf2070w13LzkRUzkKxlrhroBi8tFB7wr8X7N7f94TZJdN+82rY/r4w/7z70mOsds16xW5QdwbKy+Vd1PpSEf7jNa9NHZhBhnnE34jFG4jWhT1eDbPuJsw3jRnIKQZArxr3gYr553btZ/xx07ZK/W9/awNmmoHiCxIJaCMBUM9R2Mn+D8ze2aNfWtj39rtdeB9bUExAr1W3mHbuu3C4V0wCIMt5IM3P6OPWUtHz7rveuDFfQNlPLIAcmoYD8k0HkC3VIpuxjsLcrwzr+DFuwqILiglIvXb73lOHpoIB6Rm5F+5XhnUnoO55IHqJqIKSA3I6qt8/Z1mASEWDgu3dN2zAbIDiCkoPyKlp/WhhgAzvvvMz83KVTWMn5wkoMwJyO624UEDq/dfmEuO7b5CyphhljdpNLREB7X+A5gpSbr2qHy0LUG4CZHr37X7MgkbtppbUgBx7VT9aEiD3DVDPBHQwgLSFfnwFLRSQuYRhCurzk1hQPEDN/gOQQ/bvfPvi1O5TewGt9pkvoKy52CEAOaTnzHLn7V8CIO3H892GLRLQ/kU7Vze33//hTVjrKobZAWovLAVAQ+n9aMsLUH4QgMrXbC457ydoPoBGS9NE55xyZ/GEbvMBQON0MlmyNqDyCjHGcnfLWeJu3QuoPYPYzkPvj8FmPgMZqGSO5xCrXtWPpM9AY5XXSAxeHm+7GXX/9zqgiKeiowAyzTVeSwUtDtDgxT3GKcj22VfeBvTrvJW5ivzHx4t//a0vGVpSRh6IXYzbKq+9oOUBGqpjmIKsZw13P0bz51j/Km9lruJx627gbkYeiF2M+zpea00tDVDLgenCjPYU1NWjtdIBMVfm2ry8+oUvFn/zzWv2G6IiALJMQD5z0OIA6S9qvEGnPQV1Jp9/LP7qN0yA1r/GXpmL7sS8v7JeHzw+IPPBVt86C4Ze1Y8WAahtwXhp2OCBmMauAWi95q7MVS/G9OAfvmjr+6gDscvez493q2U2Fbm+xtIAtV7UDGhIkG0TtuauzNW3mEmd0QE15p8uIFdBywLkeH9FZy+o9e+WGWi95q7M1bciYJ0xB6JM/9lCV0ELA9R+UfPVzevW+vW97GpARRPuylxTANL8NM9EUwDIENcbvHZxbLcHxF+Za4pNmDb/dDZhuaugRQFyur+io2fTv+lTgNYhK3Pt95sse1CbsQHp2y/DDOS4EQMgF0B9gghQ0SRgZa63rpGq+kE3Iw5EZwfIBMhN0JIAWe7wcrow1b68iwIUtDJXeSLxs8Xf/P01+9Ju4w2EYQe6AJR1PoSfPaDL20fXz0cE1HViu7a5C8j6GX4FqJyzAlbmSv1RRlsKpT0MDoIkA7o6PcnPbkQEZL86vvuhev9nYeXzQ1bmKj/F+M3yw1TracRRAVn8GOalwZeSDOjyhXv59tl7Y42biYn1DguXy+ubgDgd8lzWZDxAnU2VDZCDIMmAtsfnYy5x1++nvdpLt7lFUAnI/5t7y3CXdguN3Y9BkPvLyrsi8eK6AlQmGG4voM6/ObQvx6wOo0NTzUCmHWj2FFR1J2gcfOMMaD8DyQDUFTRLQMYjMBugQUGSAY29D+QFqG8KmvdXHRhmmR5AQ0disb7Cta+kK6ByidYRj8L87nLvm4Jm/WUrxlnG7mfOgEY+DxQMyLymR7IvDBsLkMFIH6ABQaIBaQmua1Ji9WMGdAjfF2a+itXuB4BUTO++7aMMiwrzU4N75paRBsKixMYHgOp4nasxq+iurJhuAooLqCcARBkBkMfSiuNnpIEAIG5MgLT7K5rpXbK1+Wn87L722wjIdEEZZeBE0IIAmQTZF+x1fY1kfiIexuf5/xeA/ss87nM+jNcSXthjG9a/6nhzdenwbrlmrIEwCfpRAejbxpFwOxOdNKprEi4os6X/ew/mDchrL8jxs7CkUX2TcEmrZR+o74sz9C/5GaFXrhlvILqCrDOQx+UcyaL6NgGgjiAbIMcXSbcHvYl5PZDlmmgXP8sC5H5bj+OLpPQT85JWCyCXq+rnA2iMuH5znOM/864jExG3uzKSdYcVCYsrGDM0r6xdnzhuRh2I1mbMeGOh531hyTIloPZGzLg+0CCgteMTx824AzF8a7PvnanJMi0g3xXKjC9CzxynS64ZGdDoiysky6SAWoIMC0w5sFDrJo7UJceMDahJqD0DcRaYSpZpAfXcY+rqh14jsZ9kS9x5+VkgoP5jebdp5VAA2Ra5Yy2ymSxTA+oT5LhZqpZuHa9HTokByLJOtE+vRu2OW8nJAe0FcS+PX6efgGKtVM+4G1Xr1bjdcSo5NSCf7wuzvcLBAKoEjfFlK8kyPSDrNxb6vMChAGrNQfzvC0sWAYA8vnTX0j75HlA8QGN9Z2qyiABkvMfH6wVG7Y9LogFqfLTq7WepgIzfxuzXftz+OCQeoE2m9oG8/SwWUOjFzQcGiOYg/wlINqDtzaOjk1jj1l5Ryk/EhOMW47UVIP+WkgGVS7tsnxlteZdWWpfHe84ohwYoY/oRDeiiXJnjrpqCRu9H0MXNBwZoc5CA1Cw00hJ37egXN4/+8vNK9R1PU/fCLy6AyiWCKONLDrm4+eBmoIw3AYmdge4eHd0oFwiq/cToaOPiZu8fIkJ3hkrGBLQ5NEC7bG+e7P8QoScBFzcDEEUyIM1PFEBKEABtvL5ptxHJgM6OykQ7CtvsL24GoHIviNVMMiA9MbrCvzoegCjLBqQuj/dvCEAUAOJd2QNAFAACoCoAxEm5SOtHAagMALGyxgxEASBWuPfnHB4g5usCEO/qeAAKaxYSAOIFgFRJAGIFgFRJUYDWAEQvn7RZSJiAImVt+HpUZBYRMQNtMAOpl0/aLCTCAPHuzwGgsGYhASBeAEiVBCBeSQCikgDEKwlAVBKAeCUBiEoCEK8kAFFJAOKVBCAqCUC8kgBEJQGIVxKAqCQA8UoCEJUEIF5JAKKSogBtAIhePmmzkAgDxHthAAprFhIfQFen0Za4q7uTsFVQAEiV9AB0Fm+NxLo7CVsFBYBUSXdA2898DoDqkgBEJZ0BXb3ytWoTFmWJO2TmGQZ0dgv7QI2ScQfiwGagcom77fE5ADVKAhCVdJ2BqgWm1CqJ0bqTsFVQAEiVdAWU4zBeKwlAVBKAeCUBiEp6AGokWncStgoKAKmSAMQrCUBUEoB4JQGISgIQryQAUUkA4pUEICoJQLySAEQlAYhXEoCoJADxSgIQlQQgXkkAopIAxCsJQFQSgHglAYhK8gAhiB7MQJ4l4w7Ewc9A0bqTsFVQAEiVBCBeSQCikgDEKwlAVBKAeCUBiEoCEK8kAFFJAOKVBCAqCUC8kgBEJQGIVxKAqCQA8UoCEJUEIF5JAKKSAMQrCUBUEoB4JQGISgIQryQAUUlnQFenR0/eASBVEoCopDOguyf5xfVzAKKSAEQlXQFdvnCv8ado3UnYKigApEq6Atoef4U2YVjiDulmGNDNkwIRNmGqZNyBOLAZiJa4yy+fV3vR0bqTsFVQAEiVdJ2BLl8EoGZJAKKSroDKozBswvYlAYhKOgO6vH30VH0gFq07CVsFBYBUSWdAWqJ1J2GroACQKglAvJIARCUBiFcSgKgkAPFKAhCVBCBeSQCikgDEKwlAVBKAeCUBiEoCEK8kAFFJHqBY4X3Mf3gXBzB/ogkHAoBEBYCYAaAqAMQMAFUBIGRhASAkKACEBAWAkKAAEBIUEYD211y7Z3uz/Dryk+EnziiccZh6IEQAuvj8reEntbJ99l7xyzOMEZcbzjhMPRASAF298s8vng8/Tc9u3K5eOSRArHGYeiAkANoen9/1noKr/3jH/gMuN6xxmHogJAA6u5Vf3PBtVG36rx8SINY4TD0QAgBdnRYD8NS94SdqqWbu0wPai+aNw9QDIQDQbvr1nrt34+bfTHB44zD1QAgAdFb+7N5z927cWMe9UsMbh6kHYnpAV/9U/g/yHoGDOw/EHIepB2J6QMisA0BIUAAICQoAIUEBICQoAIQEBYCc83D16eLXdz75RPnrp/566u4ICQC55833fj/PX32sfPjqzwFQFQByTzn5PHz06+WDFQBRAMgjDx/9l5fKzdjDx376uwBUBYB88urvPVY9ACAVAPLJw9UT1QMAUgEgj7zzqb8iOACkAkAeKY7AqoMwAKoDQO4pj8B++jvlXjQA1QEg51SnEN8sj+MBqA4Auebdl8rziAWj8jcAUgEgJCgAhAQFgJCgABASFABCggJASFAACAkKACFBASAkKACEBOVn5obygyLfO90AAAAASUVORK5CYII=" /><!-- --></p>
 <p>The true effect for <code>A - B | C</code> is -1, for <code>A - B | D</code> is -5, and for <code>(A - B | C) - (A - B | D)</code> is <code>(-1) - (-5) = 4</code>. Visually, we’re asking if the two dashed lines in the above plot are parallel. Equivalently, we’re asking if the vertical distance from the mean of A to the mean of B in the left panel (when X2 == C) is the same as the vertical distance between A and B in the right panel (when X2 == D). The true difference between these vertical distances (the “difference of a difference”) is 4, which is also about what we would estimate it to be by looking at the above plot.</p>
 <p>We can get the estimate of this “difference of a difference” from the linear model by adding <code>interaction=TRUE</code> to the same call to <code>contrast</code> we made previously:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">contrast</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X1<span class="op">:</span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>, <span class="dt">interaction=</span><span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="kw">contrast</span>(<span class="kw">emmeans</span>(m.linear, <span class="op">~</span><span class="st"> </span>X1<span class="op">:</span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>, <span class="dt">interaction=</span><span class="ot">TRUE</span>)</span></code></pre></div>
 <pre><code>##  X1_pairwise X2_pairwise estimate    SE  df t.ratio p.value
 ##  A - B       C - D          3.823 0.285 294  13.425 &lt;.0001 
 ##  A - B       C - E         -0.382 0.285 294  -1.342 0.1808 
 ##  A - B       D - E         -4.205 0.285 294 -14.766 &lt;.0001</code></pre>
 <p>Here we can interpret the row <code>A - B    C - D</code> as the difference between (<code>A - B | C</code>) and (<code>A - B | D</code>), which is estimated as <code>3.82</code> (close to the true effect of 4, see the plot above).</p>
 <p>We can look at a similar plot for the row <code>A - B    C - E</code>:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1"><span class="kw">plot_interaction_for_X2_levels</span>(<span class="st">&quot;C&quot;</span>, <span class="st">&quot;E&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="kw">plot_interaction_for_X2_levels</span>(<span class="st">&quot;C&quot;</span>, <span class="st">&quot;E&quot;</span>)</span></code></pre></div>
+<pre><code>## `summarise()` regrouping output by &#39;X1&#39; (override with `.groups` argument)</code></pre>
 <pre><code>## Warning: `fun.y` is deprecated. Use `fun` instead.
 
 ## Warning: `fun.y` is deprecated. Use `fun` instead.</code></pre>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>Here the true effect for <code>A - B | C</code> is -1, <code>A - B | E</code> is also -1, and <code>(A - B | C) - (A - B | E)</code> is <code>0</code>. Visually, this sample looks close to the true effects (the height of <code>A - B | C</code> is about the same as <code>A - B | E</code>). From the the row <code>A-B : C-E</code> above we can see that the estimate from the linear model is ~0, as we should hope.</p>
 <p>A similar visual analysis finds the estimate for row <code>A - B    D - E</code> (~ -4.2) also to be correct (true effect is -4):</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">plot_interaction_for_X2_levels</span>(<span class="st">&quot;D&quot;</span>, <span class="st">&quot;E&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="kw">plot_interaction_for_X2_levels</span>(<span class="st">&quot;D&quot;</span>, <span class="st">&quot;E&quot;</span>)</span></code></pre></div>
+<pre><code>## `summarise()` regrouping output by &#39;X1&#39; (override with `.groups` argument)</code></pre>
 <pre><code>## Warning: `fun.y` is deprecated. Use `fun` instead.
 
 ## Warning: `fun.y` is deprecated. Use `fun` instead.</code></pre>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>Now we look at these differences of differences in art:</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="kw">contrast</span>(<span class="kw">emmeans</span>(<span class="kw">artlm</span>(m.art, <span class="st">&quot;X1:X2&quot;</span>), <span class="op">~</span><span class="st"> </span>X1<span class="op">:</span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>, <span class="dt">interaction=</span><span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="kw">contrast</span>(<span class="kw">emmeans</span>(<span class="kw">artlm</span>(m.art, <span class="st">&quot;X1:X2&quot;</span>), <span class="op">~</span><span class="st"> </span>X1<span class="op">:</span>X2), <span class="dt">method=</span><span class="st">&quot;pairwise&quot;</span>, <span class="dt">interaction=</span><span class="ot">TRUE</span>)</span></code></pre></div>
 <pre><code>##  X1_pairwise X2_pairwise estimate   SE  df t.ratio p.value
 ##  A - B       C - D          247.3 17.5 294  14.103 &lt;.0001 
 ##  A - B       C - E          -22.3 17.5 294  -1.274 0.2036 
 ##  A - B       D - E         -269.6 17.5 294 -15.377 &lt;.0001</code></pre>
 <p>And we see t values consistent with the linear model, and consistent estimates (given the SE). These types of comparisons work under ART because they do not involve coefficients of main effects (see the description of these tests in <code>vignette(&quot;phia&quot;)</code>), thus are consistent even when we’ve stripped out the main effects.</p>
 <p>If you prefer the <code>phia</code> package, the code to run the equivalent tests using the <code>testInteractions</code> function in <code>phia</code> instead of using <code>emmeans</code> is:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1"><span class="kw">testInteractions</span>(<span class="kw">artlm</span>(m.art, <span class="st">&quot;X1:X2&quot;</span>), <span class="dt">pairwise=</span><span class="kw">c</span>(<span class="st">&quot;X1&quot;</span>,<span class="st">&quot;X2&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a><span class="kw">testInteractions</span>(<span class="kw">artlm</span>(m.art, <span class="st">&quot;X1:X2&quot;</span>), <span class="dt">pairwise=</span><span class="kw">c</span>(<span class="st">&quot;X1&quot;</span>,<span class="st">&quot;X2&quot;</span>))</span></code></pre></div>
 <pre><code>## F Test: 
 ## P-value adjustment method: holm
 ##             Value  Df Sum of Sq        F Pr(&gt;F)    
