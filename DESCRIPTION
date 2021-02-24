@@ -1,9 +1,13 @@
 Package: ARTool
 Title: Aligned Rank Transform
-Version: 0.10.8
-Date: 2020-10-30
+Version: 0.11.0
+Date: 2021-02-23
 Authors@R: c(person("Matthew", "Kay", role = c("aut", "cre"),
     email = "mjskay@northwestern.edu"),
+    person("Lisa A.", "Elkin", role = "aut",
+    email = "lelkin@cs.washington.edu"),
+    person("James J.", "Higgins", role = "aut",
+    email = "jhiggins@ksu.edu"),
     person("Jacob O.", "Wobbrock", role = "aut",
     email = "wobbrock@uw.edu"))
 Maintainer: Matthew Kay <mjskay@northwestern.edu>
@@ -13,10 +17,10 @@ Description: The Aligned Rank Transform for nonparametric
     Rank Transform for nonparametric factorial analyses
     using only ANOVA procedures", CHI 2011 <DOI:10.1145/1978942.1978963>.
 Depends: R (>= 3.2)
-Imports: lme4, car (>= 2.0-24), plyr, magrittr, dplyr
-Suggests: testthat (>= 0.10.0), emmeans, knitr, rmarkdown, ggplot2,
-        tidyr, pander, lmerTest, cluster, phia, survival, psych,
-        stringi, DescTools, covr
+Imports: lme4, car (>= 2.0-24), plyr, magrittr, dplyr, emmeans
+Suggests: testthat (>= 0.10.0), knitr, rmarkdown, ggplot2, tidyr,
+        pander, lmerTest, cluster, phia, survival, psych, stringi,
+        DescTools, covr
 License: GPL (>= 2)
 Language: en-US
 BugReports: https://github.com/mjskay/ARTool/issues/new
@@ -25,8 +29,10 @@ VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2020-10-31 05:23:34 UTC; Matthew
+Packaged: 2021-02-24 05:08:20 UTC; matth
 Author: Matthew Kay [aut, cre],
+  Lisa A. Elkin [aut],
+  James J. Higgins [aut],
   Jacob O. Wobbrock [aut]
 Repository: CRAN
-Date/Publication: 2020-10-31 07:30:09 UTC
+Date/Publication: 2021-02-24 07:00:02 UTC

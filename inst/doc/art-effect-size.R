@@ -15,7 +15,7 @@ library(ARTool)     #art, artlm
 library(ggplot2)    #ggplot, stat_..., geom_..., etc
 
 ## -----------------------------------------------------------------------------
-data(InteractionTestData)
+data(InteractionTestData, package = "ARTool")
 df = InteractionTestData    #save some typing
 
 ## -----------------------------------------------------------------------------

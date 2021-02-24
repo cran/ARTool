@@ -56,7 +56,7 @@ NULL
 #' @keywords datasets
 #' @examples
 #'
-#' data(Higgins1990Table1)
+#' data(Higgins1990Table1, package = "ARTool")
 #'
 #' ## run aligned-rank transform and ANOVA on the data
 #' ## Note: because there is only one observation per Subject
@@ -130,7 +130,7 @@ NULL
 #' @keywords datasets
 #' @examples
 #'
-#' data(Higgins1990Table5)
+#' data(Higgins1990Table5, package = "ARTool")
 #'
 #' ## run aligned-rank transform and ANOVA on the data
 #' m <- art(DryMatter ~ Moisture*Fertilizer + (1|Tray), data=Higgins1990Table5)
@@ -198,19 +198,76 @@ NULL
 #' \emph{ARTool}. \url{https://depts.washington.edu/acelab/proj/art/}.
 #' @keywords datasets
 #' @examples
-#' \dontrun{
-#' data(HigginsABC, HigginsABC.art, package="ARTool")
+#' \donttest{
+#' data(HigginsABC, HigginsABC.art, package = "ARTool")
 #'
 #' ## run aligned-rank transform and ANOVA on the data
-#' m <- art(Y ~ A*B*C + Error(Subject), data=HigginsABC)
+#' m <- art(Y ~ A*B*C + Error(Subject), data = HigginsABC)
 #' anova(m)
+#' }
+NULL
+
+#' Synthetic 2x2 Within-Subjects Experiment
+#'
+#' Synthetic data from an experiment with two within-subjects factors
+#' (\code{A} and \code{B}) having two levels each.
+#'
+#' @name ElkinAB
+#' @docType data
+#' @format A data frame with 32 observations on the following 4 variables.
+#' \describe{
+#'      \item{S}{a factor representing subjects with levels \code{"s1"} .. \code{"s8"}}
+#'      \item{A}{a factor with levels \code{"a1"} \code{"a2"}}
+#'      \item{B}{a factor with levels \code{"b1"} \code{"b2"}}
+#'      \item{Y}{a numeric vector}
+#' }
+#' @keywords datasets
+#' @source Elkin, L. A., Kay, M, Higgins, J. J., and Wobbrock, J. O.
+#'   (2021). An Aligned Rank Transform Procedure for Multifactor Contrast Tests.
+#'   \href{https://arxiv.org/abs/2102.11824}{arXiv eprint: 2102.11824}.
+#' @examples
+#' \donttest{
+#' data(ElkinAB, package = "ARTool")
+#'
+#' ## run contrast using the ART-C procedure on the data.
+#' m <- art(Y ~ A*B + (1|S), data = ElkinAB)
+#' art.con(m, "A:B")
+#' }
+NULL
+
+#' Synthetic 2x2x2 Within-Subjects Experiment
+#'
+#' Synthetic data from an experiment with three within-subjects factors
+#' (\code{A}, \code{B}, and \code{C}) having two levels each.
+#'
+#' @name ElkinABC
+#' @docType data
+#' @format A data frame with 64 observations on the following 5 variables.
+#' \describe{
+#'      \item{S}{a factor representing subjects with levels \code{"s1"} .. \code{"s8"}}
+#'      \item{A}{a factor with levels \code{"a1"} \code{"a2"}}
+#'      \item{B}{a factor with levels \code{"b1"} \code{"b2"}}
+#'      \item{C}{a factor with levels \code{"c1"} \code{"c2"}}
+#'      \item{Y}{a numeric vector}
+#' }
+#' @keywords datasets
+#' @source Elkin, L. A., Kay, M, Higgins, J. J., and Wobbrock, J. O.
+#'   (2021). An Aligned Rank Transform Procedure for Multifactor Contrast Tests.
+#'   \href{https://arxiv.org/abs/2102.11824}{arXiv eprint: 2102.11824}.
+#' @examples
+#' \donttest{
+#' data(ElkinABC, package = "ARTool")
+#'
+#' ## run contrast using the ART-C procedure on the data.
+#' m <- art(Y ~ A*B*C + (1|S), data = ElkinABC)
+#' art.con(m, "A:B:C")
 #' }
 NULL
 
 
 #' Synthetic Data Used in the Contrast Test Vignette
 #'
-#' See (\code{vignette("art-contrasts")} for a description of this data.
+#' See \code{vignette("art-contrasts")} for a description of this data.
 #'
 #'
 #' @name InteractionTestData
@@ -218,8 +275,5 @@ NULL
 #' @seealso \code{\link{art}}, \code{\link{anova.art}}.
 #' @keywords datasets
 #' @examples
-#' \dontrun{
-#' ## see this vignette
-#' vignette("art-contrasts")
-#' }
+#' ## see vignette("art-contrasts")
 NULL
