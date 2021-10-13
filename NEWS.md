@@ -1,3 +1,11 @@
+# ARTool 0.11.1
+
+Minor changes:
+
+* Updated DOIs and citations (#32).
+* Ensure `tibble`s can be used with `art.con()` (#27).
+
+
 # ARTool 0.11.0
 
 Major changes:

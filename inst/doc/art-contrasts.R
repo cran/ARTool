@@ -6,7 +6,7 @@ knitr::opts_chunk$set(  #default code chunk options
 pander::panderOptions("table.split.table", Inf)     #don't split wide tables in output
 pander::panderOptions("table.style", "rmarkdown")   #table style that's supported by github
 
-## ----message=FALSE------------------------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 library(dplyr)      #data_frame, %>%, filter, summarise, group_by
 library(emmeans)    #emmeans, contrast
 library(phia)       #testInteractions
@@ -64,7 +64,8 @@ contrast(emmeans(m.linear, ~ X1), method = "pairwise")
 contrast(emmeans(m.linear, ~ X2), method = "pairwise")
 
 ## ---- message=FALSE-----------------------------------------------------------
-# this works for single factors, though better to use artlm.con() or art.con() below
+# this works for single factors, though it is better (more general) to use
+# artlm.con() or art.con() (see below)
 contrast(emmeans(artlm(m.art, "X1"), ~ X1), method = "pairwise")
 contrast(emmeans(artlm(m.art, "X2"), ~ X2), method = "pairwise")
 
