@@ -24,12 +24,12 @@ appropriate for Type III ANOVAs (the default ANOVA type for
 \code{\link{anova.art}}).}
 
 \item{\dots}{Additional arguments passed to \code{\link{lm}} or
-\code{\link{lmer}}.}
+\code{\link[lme4]{lmer}}.}
 }
 \value{
 An object of class \code{\link{lm}} if \code{formula(m)} does not
-  contain grouping or error terms, an object of class \code{\link{merMod}}
-  (i.e. a model fit by \code{\link{lmer}}) if it does contain grouping terms, or
+  contain grouping or error terms, an object of class \code{\link[lme4]{merMod}}
+  (i.e. a model fit by \code{\link[lme4]{lmer}}) if it does contain grouping terms, or
   an object of class \code{aovlist} (i.e. a model fit by \code{\link{aov}})
   if it contains error terms.
 }
@@ -62,7 +62,7 @@ m <- art(DryMatter ~ Moisture*Fertilizer + (1|Tray), data=Higgins1990Table5)
 
 ## use emmeans to conduct pairwise contrasts on "Moisture"
 library(emmeans)
-contrast(emmeans(artlm.con(m, "Moisture"), pairwise ~ Moisture))
+contrast(emmeans(artlm.con(m, "Moisture"), ~ Moisture), method = "pairwise")
 
 ## use emmeans to conduct pairwise contrasts on "Moisture:Fertilizer"
 ## N.B. internally, artlm.con concatenates the factors Moisture and Fertilizer
@@ -70,7 +70,7 @@ contrast(emmeans(artlm.con(m, "Moisture"), pairwise ~ Moisture))
 ## Moisture:Fertilizer, or Moisture*Fertilizer in the RHS of the formula
 ## passed to emmeans, you will get an error because the factors Moisture and Fertilizer
 ## do not exist in the model returned by artlm.con.
-contrast(emmeans(artlm.con(m, "Moisture:Fertilizer"), pairwise ~ MoistureFertilizer))
+contrast(emmeans(artlm.con(m, "Moisture:Fertilizer"), ~ MoistureFertilizer), method = "pairwise")
 
 ## Note: art.con uses emmeans internally, and the above examples are equivalent to
 ## the following calls to art.con, which is the recommended approach as it will

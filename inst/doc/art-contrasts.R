@@ -11,7 +11,7 @@ library(dplyr)      #data_frame, %>%, filter, summarise, group_by
 library(emmeans)    #emmeans, contrast
 library(phia)       #testInteractions
 library(tidyr)      #spread
-library(ARTool)     #art, artlm
+library(ARTool)     #art, artlm, artlm.con, art.con
 library(ggplot2)    #ggplot, stat_..., geom_..., etc
 
 ## -----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ df %>%
   stat_summary(aes(group = X2), fun = mean, geom = "line", size = 1) +
   stat_summary(aes(x = 1.5, group = NA), fun = mean, geom = "point", size = 9, pch = "+") +
   scale_y_continuous(breaks = seq(-6, 10, by = 2), minor_breaks = -6:10) +
-  scale_color_manual(guide = FALSE, values = palette) +
+  scale_color_manual(guide = "none", values = palette) +
   coord_cartesian(ylim = c(-6, 10)) +
   facet_grid(. ~ X2)
 
@@ -59,21 +59,21 @@ anova(m.linear)
 m.art = art(Y ~ X1*X2, data = df)
 anova(m.art)
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 contrast(emmeans(m.linear, ~ X1), method = "pairwise")
 contrast(emmeans(m.linear, ~ X2), method = "pairwise")
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 # this works for single factors, though it is better (more general) to use
 # artlm.con() or art.con() (see below)
 contrast(emmeans(artlm(m.art, "X1"), ~ X1), method = "pairwise")
 contrast(emmeans(artlm(m.art, "X2"), ~ X2), method = "pairwise")
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 contrast(emmeans(artlm.con(m.art, "X1"), ~ X1), method = "pairwise")
 contrast(emmeans(artlm.con(m.art, "X2"), ~ X2), method = "pairwise")
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 art.con(m.art, "X1")
 art.con(m.art, "X2")
 
@@ -92,7 +92,7 @@ df %>%
   geom_point(pch = "-", size = 4) +
   stat_summary(fun = mean, geom = "point", size = 4) +
   scale_y_continuous(breaks = seq(-6, 10, by = 2), minor_breaks = -6:10) +
-  scale_color_manual(guide = FALSE, values = palette) +
+  scale_color_manual(guide = "none", values = palette) +
   coord_cartesian(ylim=c(-6,10)) 
 
 ## ----message = FALSE----------------------------------------------------------
@@ -104,7 +104,7 @@ art.con(m.art, ~ X1*X2)
 ## ----message = FALSE----------------------------------------------------------
 contrast(emmeans(artlm.con(m.art, "X1:X2"), ~ X1X2), method = "pairwise")
 
-## ---- interaction_plot_C_D, fig.cap=""----------------------------------------
+## ----interaction_plot_C_D, fig.cap=""-----------------------------------------
 plot_interaction_for_X2_levels = function(...) {
   x2_levels = c(...)
   df. = filter(df, X2 %in% x2_levels)
@@ -129,7 +129,7 @@ plot_interaction_for_X2_levels = function(...) {
         data = X1_in_X2, hjust = 0, size = 5, color = "black"
       ) +
       scale_y_continuous(breaks = seq(-6, 10, by = 2), minor_breaks = -6:10) +
-      scale_color_manual(guide = FALSE, values = palette[x2_levels]) +
+      scale_color_manual(guide = "none", values = palette[x2_levels]) +
       coord_cartesian(xlim = c(0, 3.5), ylim = c(-6,10)) +
       facet_grid(. ~ X2)
   )
@@ -142,7 +142,7 @@ contrast(emmeans(m.linear, ~ X1:X2), method = "pairwise", interaction = TRUE)
 ## ----interaction_plot_C_E, fig.cap=""-----------------------------------------
 plot_interaction_for_X2_levels("C", "E")
 
-## ---- interaction_plot_D_E, fig.cap=""----------------------------------------
+## ----interaction_plot_D_E, fig.cap=""-----------------------------------------
 plot_interaction_for_X2_levels("D", "E")
 
 ## -----------------------------------------------------------------------------

@@ -218,7 +218,6 @@ generate.art.concatenated.df = function(m.f.parsed, df, f.parsed) {
     if (length(f.interaction.variables) > 1) {
         f.interaction.variables.string.vec = sapply(f.interaction.variables,deparse)
         art.con.df[[f.concatenated.variable]] = do.call(paste, c(unname(art.con.df[,f.interaction.variables.string.vec]), sep = ","))
-        art.con.df[,f.interaction.variables.string.vec] = NULL
     }
     # note: when m was created would have thrown error if a fixed var column in df was not a factor
     art.con.df[[f.concatenated.variable]] = factor(art.con.df[[f.concatenated.variable]])
@@ -330,7 +329,7 @@ artlm.con.internal = function(m, f.parsed, response, factor.contrasts, ...) {
 ### ...: extra parameter passed to artlm and subsequently lm or lmer
 ### returns: result of conducting interaction contrasts on terms specified in f.parsed
 ###          (object of class emmGrid)
-do.art.interaction.contrast = function(m, f.parsed, response, factor.contrasts, method, adjust, ...) {
+.do.art.interaction.contrast = function(m, f.parsed, response, factor.contrasts, method, adjust, ...) {
     # e.g. list("a", "b", "c")
     interaction.variables = f.parsed$interaction.variables
     # e.g. list("a", "b", "c") -> "a:b:c". will be passed to artlm
@@ -362,7 +361,7 @@ do.art.interaction.contrast = function(m, f.parsed, response, factor.contrasts, 
 ### Note: called internally from art.con iff interaction = FALSE
 #' @importFrom stats p.adjust p.adjust.methods
 #' @importFrom emmeans emmeans contrast
-do.art.contrast = function(f.parsed, artlm.con, method, adjust) {
+.do.art.contrast = function(f.parsed, artlm.con, method, adjust) {
     # e.g. f.parsed$concat.interaction.variable = X1X2 -> ~ X1X2
     emmeans.formula = as.formula(call("~", f.parsed$concat.interaction.variable))
     art.con.emmeans = emmeans(artlm.con, emmeans.formula)
